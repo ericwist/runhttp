@@ -1,8 +1,0 @@
-; test2.esp.def : Declares the module parameters for the DLL.
-
-LIBRARY      "test2.esp.dll"
-DESCRIPTION  'test2.esp Windows Dynamic Link Library'
-
-EXPORTS
-	; Explicit exports can go here
-	createCServlet	@1

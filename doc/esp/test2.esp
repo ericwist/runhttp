@@ -1,9 +1,0 @@
-<esp:page 
-   xmlns:esp="http://216.227.118.149/esp/Page"	
-   version="1.2">	
-
-	<esp:clear>
-		Hello World!
-	</esp:clear>
-
-</esp:page>
