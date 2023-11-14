@@ -117,6 +117,9 @@
     <ClCompile Include="inc\openssl\applink.c">
       <Filter>inc\openssl</Filter>
     </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppSocket.h">

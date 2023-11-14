@@ -1,7 +1,7 @@
 /*
  * Various utilities.
  *
- * W.D.L 020526
+ * EJW
  */
 
 //#include "stdafx.h"

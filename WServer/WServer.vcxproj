@@ -201,6 +201,7 @@ Copy ..\WServer\libs\release\libssl-3.dll C:\Users\ericj\source\repos\ericwist\r
     <ClCompile Include="StdRedirect.cpp" />
     <ClCompile Include="StringTokenizer.cpp" />
     <ClCompile Include="URLCoder.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="ws-util.cpp" />
     <ClCompile Include="WServer.cpp" />
   </ItemGroup>
