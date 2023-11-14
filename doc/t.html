@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Expires" CONTENT="0">
+<TITLE>Connect</TITLE>
+<script language ="javascript">
+<!--
+function handleSubmit()
+{
+	var elem = null;
+	var elemName;
+
+	if ( document.theForm.namespace.value.length < 1 )
+	{
+		elem = document.theForm.namespace;
+		elemName = "Namespace";
+	}
+
+	if ( elem != null )
+	{
+		alert("Please enter the " + elemName);
+		elem.focus();
+		return false
+	}
+	return true
+}
+
+function onPageLoad()
+{
+	document.forms[0].computer.focus();
+	alert("Test");
+}
+//-->
+</script>
+</HEAD>
+
+<BODY topmargin="16" leftmargin="16" onload="onPageLoad()">
+<form name="theForm" onsubmit="return handleSubmit();" method=POST action="winmanservelt">
+<table align="left" border="0" cellspacing="0" cellpadding="0" width="100%" valign="top">
+<tr>
+	<td align="center" valign="top">
+		<table cellpadding="0" cellspacing="0" border="0" height="100%" width="100%">
+			<tr>
+				<td align="left" valign="top">
+					<font face="verdana,arial,helvetica" size="2"><strong>Computer:</strong></font><br><input type="text" NAME="computer" VALUE="" size="50" maxlength="50">
+					<br><font face="verdana,arial,helvetica" size="2"><strong>Namespace:</strong></font><br><input type="text" NAME="namespace" VALUE="root\CIMV2" size="50" maxlength="50">
+				</td>
+			</tr>
+		</table>
+	</td>
+</tr>
+</table>
+</form>
+</body>
+</html>
+

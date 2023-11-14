@@ -1,0 +1,394 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Template|Win32">
+      <Configuration>Template</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <ProjectGuid>{840A1245-DB1C-431A-A335-F4308710EE48}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>inc;$(IncludePath)</IncludePath>
+    <LibraryPath>libs\debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>libs\release;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <MinimalRebuild>true</MinimalRebuild>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_DLL;WIN32;_WINDOWS;_USRDLL;WSERVER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\Debug\WServer.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Debug\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>Copy ..\WServer\Debug\WServer.dll C:\Users\ericj\source\repos\ericwist\runhttp\Debug
+Copy ..\WServer\Debug\WServer.pdb C:\Users\ericj\source\repos\ericwist\runhttp\Debug
+Copy ..\WServer\Debug\WServer.lib C:\Users\ericj\source\repos\ericwist\runhttp
+Copy ..\WServer\libs\debug\libcrypto-3.dll C:\Users\ericj\source\repos\ericwist\runhttp\Debug
+Copy ..\WServer\libs\debug\libssl-3.dll C:\Users\ericj\source\repos\ericwist\runhttp\Debug</Command>
+      <Message>Copy to Distributables</Message>
+    </PostBuildEvent>
+    <Midl>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TypeLibraryName>.\Debug\WServer.tlb</TypeLibraryName>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug\WServer.bsc</OutputFile>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LinkDLL>true</LinkDLL>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <OutputFile>.\Debug\WServer.dll</OutputFile>
+      <ImportLibrary>.\Debug\WServer.lib</ImportLibrary>
+      <AdditionalLibraryDirectories>\dev\openssl-0.9.6d\out32dll\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;ws2_32.lib;MSVCRTD.lib;libssl32MDd.lib;libcrypto32MDd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;WIN32;_WINDOWS;_USRDLL;WSERVER_EXPORTS;_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\Release\WServer.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>Copy ..\WServer\Release\WServer.dll C:\Users\ericj\source\repos\ericwist\runhttp\Release
+Copy ..\WServer\Release\WServer.pdb C:\Users\ericj\source\repos\ericwist\runhttp\Release
+Copy ..\WServer\Release\WServer.lib C:\Users\ericj\source\repos\ericwist\runhttp
+Copy ..\WServer\libs\release\libcrypto-3.dll C:\Users\ericj\source\repos\ericwist\runhttp\Release
+Copy ..\WServer\libs\release\libssl-3.dll C:\Users\ericj\source\repos\ericwist\runhttp\Release</Command>
+      <Message>Copy to Distributables</Message>
+    </PostBuildEvent>
+    <Midl>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TypeLibraryName>.\Release\WServer.tlb</TypeLibraryName>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release\WServer.bsc</OutputFile>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LinkDLL>true</LinkDLL>
+      <SubSystem>Console</SubSystem>
+      <IgnoreSpecificDefaultLibraries>LIBCMT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OutputFile>.\Release\WServer.dll</OutputFile>
+      <ImportLibrary>.\Release\WServer.lib</ImportLibrary>
+      <AdditionalLibraryDirectories>\dev\openssl-0.9.6d\out32dll\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;ws2_32.lib;MSVCRT.lib;libssl32MD.lib;libcrypto32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AppSocket.cpp" />
+    <ClCompile Include="AsciiParameterManager.cpp" />
+    <ClCompile Include="AttributeManager.cpp" />
+    <ClCompile Include="Base64Converter.cpp" />
+    <ClCompile Include="Chttp.cpp">
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</IgnoreStandardIncludePath>
+    </ClCompile>
+    <ClCompile Include="HeaderManager.cpp" />
+    <ClCompile Include="HttpCookie.cpp" />
+    <ClCompile Include="HttpRequest.cpp" />
+    <ClCompile Include="HttpRequestProcessor.cpp" />
+    <ClCompile Include="HttpRequestProcessorFactory.cpp" />
+    <ClCompile Include="HttpResponse.cpp" />
+    <ClCompile Include="inc\openssl\applink.c" />
+    <ClCompile Include="KeyValue.cpp" />
+    <ClCompile Include="Platform.cpp" />
+    <ClCompile Include="RequestListener.cpp" />
+    <ClCompile Include="RequestProcessor.cpp" />
+    <ClCompile Include="RequestProcessorFactory.cpp" />
+    <ClCompile Include="Session.cpp" />
+    <ClCompile Include="SessionIDGenerator.cpp" />
+    <ClCompile Include="SessionManager.cpp" />
+    <ClCompile Include="SocketConnector.cpp" />
+    <ClCompile Include="SocketListener.cpp" />
+    <ClCompile Include="SSLAppSocket.cpp" />
+    <ClCompile Include="SSLRequestListener.cpp" />
+    <ClCompile Include="StdRedirect.cpp" />
+    <ClCompile Include="StringTokenizer.cpp" />
+    <ClCompile Include="URLCoder.cpp" />
+    <ClCompile Include="ws-util.cpp" />
+    <ClCompile Include="WServer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AppSocket.h" />
+    <ClInclude Include="AsciiParameterManager.h" />
+    <ClInclude Include="AttributeManager.h" />
+    <ClInclude Include="Base64Converter.h" />
+    <ClInclude Include="Chttp.h" />
+    <ClInclude Include="debugsof.h" />
+    <ClInclude Include="debugson.h" />
+    <ClInclude Include="HeaderManager.h" />
+    <ClInclude Include="HttpCookie.h" />
+    <ClInclude Include="HttpRequest.h" />
+    <ClInclude Include="HttpRequestProcessor.h" />
+    <ClInclude Include="HttpRequestProcessorFactory.h" />
+    <ClInclude Include="HttpResponse.h" />
+    <ClInclude Include="inc\openssl\aes.h" />
+    <ClInclude Include="inc\openssl\asn1.h" />
+    <ClInclude Include="inc\openssl\asn1err.h" />
+    <ClInclude Include="inc\openssl\asn1t.h" />
+    <ClInclude Include="inc\openssl\asn1_mac.h" />
+    <ClInclude Include="inc\openssl\async.h" />
+    <ClInclude Include="inc\openssl\asyncerr.h" />
+    <ClInclude Include="inc\openssl\bio.h" />
+    <ClInclude Include="inc\openssl\bioerr.h" />
+    <ClInclude Include="inc\openssl\blowfish.h" />
+    <ClInclude Include="inc\openssl\bn.h" />
+    <ClInclude Include="inc\openssl\bnerr.h" />
+    <ClInclude Include="inc\openssl\buffer.h" />
+    <ClInclude Include="inc\openssl\buffererr.h" />
+    <ClInclude Include="inc\openssl\camellia.h" />
+    <ClInclude Include="inc\openssl\cast.h" />
+    <ClInclude Include="inc\openssl\cmac.h" />
+    <ClInclude Include="inc\openssl\cmp.h" />
+    <ClInclude Include="inc\openssl\cmperr.h" />
+    <ClInclude Include="inc\openssl\cmp_util.h" />
+    <ClInclude Include="inc\openssl\cms.h" />
+    <ClInclude Include="inc\openssl\cmserr.h" />
+    <ClInclude Include="inc\openssl\comp.h" />
+    <ClInclude Include="inc\openssl\comperr.h" />
+    <ClInclude Include="inc\openssl\conf.h" />
+    <ClInclude Include="inc\openssl\conferr.h" />
+    <ClInclude Include="inc\openssl\configuration.h" />
+    <ClInclude Include="inc\openssl\conftypes.h" />
+    <ClInclude Include="inc\openssl\conf_api.h" />
+    <ClInclude Include="inc\openssl\core.h" />
+    <ClInclude Include="inc\openssl\core_dispatch.h" />
+    <ClInclude Include="inc\openssl\core_names.h" />
+    <ClInclude Include="inc\openssl\core_object.h" />
+    <ClInclude Include="inc\openssl\crmf.h" />
+    <ClInclude Include="inc\openssl\crmferr.h" />
+    <ClInclude Include="inc\openssl\crypto.h" />
+    <ClInclude Include="inc\openssl\cryptoerr.h" />
+    <ClInclude Include="inc\openssl\cryptoerr_legacy.h" />
+    <ClInclude Include="inc\openssl\ct.h" />
+    <ClInclude Include="inc\openssl\cterr.h" />
+    <ClInclude Include="inc\openssl\decoder.h" />
+    <ClInclude Include="inc\openssl\decodererr.h" />
+    <ClInclude Include="inc\openssl\des.h" />
+    <ClInclude Include="inc\openssl\dh.h" />
+    <ClInclude Include="inc\openssl\dherr.h" />
+    <ClInclude Include="inc\openssl\dsa.h" />
+    <ClInclude Include="inc\openssl\dsaerr.h" />
+    <ClInclude Include="inc\openssl\dtls1.h" />
+    <ClInclude Include="inc\openssl\ebcdic.h" />
+    <ClInclude Include="inc\openssl\ec.h" />
+    <ClInclude Include="inc\openssl\ecdh.h" />
+    <ClInclude Include="inc\openssl\ecdsa.h" />
+    <ClInclude Include="inc\openssl\ecerr.h" />
+    <ClInclude Include="inc\openssl\encoder.h" />
+    <ClInclude Include="inc\openssl\encodererr.h" />
+    <ClInclude Include="inc\openssl\engine.h" />
+    <ClInclude Include="inc\openssl\engineerr.h" />
+    <ClInclude Include="inc\openssl\err.h" />
+    <ClInclude Include="inc\openssl\ess.h" />
+    <ClInclude Include="inc\openssl\esserr.h" />
+    <ClInclude Include="inc\openssl\evp.h" />
+    <ClInclude Include="inc\openssl\evperr.h" />
+    <ClInclude Include="inc\openssl\e_os2.h" />
+    <ClInclude Include="inc\openssl\fipskey.h" />
+    <ClInclude Include="inc\openssl\fips_names.h" />
+    <ClInclude Include="inc\openssl\hmac.h" />
+    <ClInclude Include="inc\openssl\http.h" />
+    <ClInclude Include="inc\openssl\httperr.h" />
+    <ClInclude Include="inc\openssl\idea.h" />
+    <ClInclude Include="inc\openssl\kdf.h" />
+    <ClInclude Include="inc\openssl\kdferr.h" />
+    <ClInclude Include="inc\openssl\lhash.h" />
+    <ClInclude Include="inc\openssl\macros.h" />
+    <ClInclude Include="inc\openssl\md2.h" />
+    <ClInclude Include="inc\openssl\md4.h" />
+    <ClInclude Include="inc\openssl\md5.h" />
+    <ClInclude Include="inc\openssl\mdc2.h" />
+    <ClInclude Include="inc\openssl\modes.h" />
+    <ClInclude Include="inc\openssl\objects.h" />
+    <ClInclude Include="inc\openssl\objectserr.h" />
+    <ClInclude Include="inc\openssl\obj_mac.h" />
+    <ClInclude Include="inc\openssl\ocsp.h" />
+    <ClInclude Include="inc\openssl\ocsperr.h" />
+    <ClInclude Include="inc\openssl\opensslconf.h" />
+    <ClInclude Include="inc\openssl\opensslv.h" />
+    <ClInclude Include="inc\openssl\ossl_typ.h" />
+    <ClInclude Include="inc\openssl\params.h" />
+    <ClInclude Include="inc\openssl\param_build.h" />
+    <ClInclude Include="inc\openssl\pem.h" />
+    <ClInclude Include="inc\openssl\pem2.h" />
+    <ClInclude Include="inc\openssl\pemerr.h" />
+    <ClInclude Include="inc\openssl\pkcs12.h" />
+    <ClInclude Include="inc\openssl\pkcs12err.h" />
+    <ClInclude Include="inc\openssl\pkcs7.h" />
+    <ClInclude Include="inc\openssl\pkcs7err.h" />
+    <ClInclude Include="inc\openssl\proverr.h" />
+    <ClInclude Include="inc\openssl\provider.h" />
+    <ClInclude Include="inc\openssl\prov_ssl.h" />
+    <ClInclude Include="inc\openssl\rand.h" />
+    <ClInclude Include="inc\openssl\randerr.h" />
+    <ClInclude Include="inc\openssl\rc2.h" />
+    <ClInclude Include="inc\openssl\rc4.h" />
+    <ClInclude Include="inc\openssl\rc5.h" />
+    <ClInclude Include="inc\openssl\ripemd.h" />
+    <ClInclude Include="inc\openssl\rsa.h" />
+    <ClInclude Include="inc\openssl\rsaerr.h" />
+    <ClInclude Include="inc\openssl\safestack.h" />
+    <ClInclude Include="inc\openssl\seed.h" />
+    <ClInclude Include="inc\openssl\self_test.h" />
+    <ClInclude Include="inc\openssl\sha.h" />
+    <ClInclude Include="inc\openssl\srp.h" />
+    <ClInclude Include="inc\openssl\srtp.h" />
+    <ClInclude Include="inc\openssl\ssl.h" />
+    <ClInclude Include="inc\openssl\ssl2.h" />
+    <ClInclude Include="inc\openssl\ssl3.h" />
+    <ClInclude Include="inc\openssl\sslerr.h" />
+    <ClInclude Include="inc\openssl\sslerr_legacy.h" />
+    <ClInclude Include="inc\openssl\stack.h" />
+    <ClInclude Include="inc\openssl\store.h" />
+    <ClInclude Include="inc\openssl\storeerr.h" />
+    <ClInclude Include="inc\openssl\symhacks.h" />
+    <ClInclude Include="inc\openssl\tls1.h" />
+    <ClInclude Include="inc\openssl\trace.h" />
+    <ClInclude Include="inc\openssl\ts.h" />
+    <ClInclude Include="inc\openssl\tserr.h" />
+    <ClInclude Include="inc\openssl\txt_db.h" />
+    <ClInclude Include="inc\openssl\types.h" />
+    <ClInclude Include="inc\openssl\ui.h" />
+    <ClInclude Include="inc\openssl\uierr.h" />
+    <ClInclude Include="inc\openssl\whrlpool.h" />
+    <ClInclude Include="inc\openssl\x509.h" />
+    <ClInclude Include="inc\openssl\x509err.h" />
+    <ClInclude Include="inc\openssl\x509v3.h" />
+    <ClInclude Include="inc\openssl\x509v3err.h" />
+    <ClInclude Include="inc\openssl\x509_vfy.h" />
+    <ClInclude Include="inc\openssl\__DECC_INCLUDE_EPILOGUE.H" />
+    <ClInclude Include="inc\openssl\__DECC_INCLUDE_PROLOGUE.H" />
+    <ClInclude Include="KeyValue.h" />
+    <ClInclude Include="ObjectDestructor.h" />
+    <ClInclude Include="Platform.h" />
+    <ClInclude Include="Request.h" />
+    <ClInclude Include="RequestListener.h" />
+    <ClInclude Include="RequestProcessor.h" />
+    <ClInclude Include="RequestProcessorFactory.h" />
+    <ClInclude Include="Response.h" />
+    <ClInclude Include="Session.h" />
+    <ClInclude Include="SessionIDGenerator.h" />
+    <ClInclude Include="SessionManager.h" />
+    <ClInclude Include="SocketConnector.h" />
+    <ClInclude Include="SocketListener.h" />
+    <ClInclude Include="SSLAppSocket.h" />
+    <ClInclude Include="SSLRequestListener.h" />
+    <ClInclude Include="StdRedirect.h" />
+    <ClInclude Include="StringTokenizer.h" />
+    <ClInclude Include="URLCoder.h" />
+    <ClInclude Include="ws-util.h" />
+    <ClInclude Include="WServer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libs\debug\libcrypto-3.dll" />
+    <None Include="libs\debug\libssl-3.dll" />
+    <None Include="libs\release\libcrypto-3.dll" />
+    <None Include="libs\release\libssl-3.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libs\debug\libcrypto32MDd.lib" />
+    <Library Include="libs\debug\libssl32MDd.lib" />
+    <Library Include="libs\release\libcrypto32MD.lib" />
+    <Library Include="libs\release\libssl32MD.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
