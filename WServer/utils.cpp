@@ -6,7 +6,7 @@
 
 //#include "stdafx.h"
 
-// ZZZ This file is also in FrameWork.dll. Need to consolidate. W.D.L 030510
+// ZZZ This file is also in FrameWork.dll.
 
 #ifdef	_WIN32_WCE	// [
 #include <windows.h>
