@@ -179,8 +179,6 @@ Copy ..\WServer\libs\release\libssl-3.dll C:\Users\ericj\source\repos\ericwist\r
     <ClCompile Include="Chttp.cpp">
       <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</IgnoreStandardIncludePath>
     </ClCompile>
-    <ClCompile Include="EchoRequestProcessor.cpp" />
-    <ClCompile Include="EchoRequestProcessorFactory.cpp" />
     <ClCompile Include="HeaderManager.cpp" />
     <ClCompile Include="HttpCookie.cpp" />
     <ClCompile Include="HttpRequest.cpp" />
@@ -215,8 +213,6 @@ Copy ..\WServer\libs\release\libssl-3.dll C:\Users\ericj\source\repos\ericwist\r
     <ClInclude Include="Chttp.h" />
     <ClInclude Include="debugsof.h" />
     <ClInclude Include="debugson.h" />
-    <ClInclude Include="EchoRequestProcessor.h" />
-    <ClInclude Include="EchoRequestProcessorFactory.h" />
     <ClInclude Include="HeaderManager.h" />
     <ClInclude Include="HttpCookie.h" />
     <ClInclude Include="HttpRequest.h" />

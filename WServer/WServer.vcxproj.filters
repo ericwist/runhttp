@@ -120,12 +120,6 @@
     <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EchoRequestProcessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EchoRequestProcessorFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppSocket.h">
@@ -637,12 +631,6 @@
     </ClInclude>
     <ClInclude Include="inc\openssl\x509v3err.h">
       <Filter>inc\openssl</Filter>
-    </ClInclude>
-    <ClInclude Include="EchoRequestProcessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EchoRequestProcessorFactory.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
