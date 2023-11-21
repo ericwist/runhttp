@@ -1,46 +1,45 @@
 #ifndef DebugsOfH
 #define DebugsOfH
 
-#ifdef	D
- #undef	D
+#ifdef D
+#undef D
 #endif
 
-#ifdef	P
- #undef	P
+#ifdef P
+#undef P
 #endif
 
-#ifdef	Q
- #undef	Q
+#ifdef Q
+#undef Q
 #endif
 
-#ifdef	X
- #undef	X
+#ifdef X
+#undef X
 #endif
 
-#ifdef	PD
- #undef	PD
+#ifdef PD
+#undef PD
 #endif
 
-#ifdef	PF
- #undef	PF
+#ifdef PF
+#undef PF
 #endif
 
-#ifdef	PP
- #undef	PP
+#ifdef PP
+#undef PP
 #endif
 
-#ifdef	K
- #undef	K
+#ifdef K
+#undef K
 #endif
 
-#ifdef	KP
- #undef	KP
+#ifdef KP
+#undef KP
 #endif
 
-#ifdef	KPF
- #undef	KPF
+#ifdef KPF
+#undef KPF
 #endif
-
 
 /*
 #ifdef	PRINTF
@@ -48,27 +47,26 @@
 #endif
 */
 
-#define	D(x)	;
-#define	Q(x)	;
-#define	P(x)	;
-#define	PF(x)	;
-#define	PD(x,y)	;
-#define	PP(x)	;
-#define	X()	;
+#define D(x) ;
+#define Q(x) ;
+#define P(x) ;
+#define PF(x) ;
+#define PD(x, y) ;
+#define PP(x) ;
+#define X() ;
 
-#define	KP(x)	;
-#define	KPF(x)	;
-#define	K(x)	;
+#define KP(x) ;
+#define KPF(x) ;
+#define K(x) ;
 
-//#define	PRINTF	printf
+// #define	PRINTF	printf
 
-#ifndef	DEBUG_UTILS
-#define	DEBUG_UTILS
+#ifndef DEBUG_UTILS
+#define DEBUG_UTILS
 
-#define	PFSTRING	"*no*string*"
+#define PFSTRING "*no*string*"
 #define PFSTR(x) ((x) ? x : PFSTRING)
 
 #endif
-
 
 #endif

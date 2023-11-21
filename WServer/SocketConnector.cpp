@@ -8,7 +8,7 @@
 
 #include "SocketConnector.h"
 
-//#include "debugson.h"
+// #include "debugson.h"
 
 /**
  * Static class method that takes an address string, determines if it's a
@@ -21,27 +21,26 @@
  */
 u_long SocketConnector::lookupAddress(const char& pcHost)
 {
-	u_long nRemoteAddr = inet_addr(&pcHost);
+    u_long nRemoteAddr = inet_addr(&pcHost);
 
-	//D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
+    // D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
 
-	if (nRemoteAddr == INADDR_NONE)
-	{
-		//D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
+    if (nRemoteAddr == INADDR_NONE)
+    {
+        // D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
 
-		// pcHost isn't a dotted IP, so resolve it through DNS
-		hostent* pHE = gethostbyname(&pcHost);
+        // pcHost isn't a dotted IP, so resolve it through DNS
+        hostent* pHE = gethostbyname(&pcHost);
 
-		if (pHE != 0)
-		{
-			//D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
-			nRemoteAddr = *((u_long*)pHE->h_addr_list[0]);
-		}
-	}
+        if (pHE != 0)
+        {
+            // D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
+            nRemoteAddr = *((u_long*)pHE->h_addr_list[0]);
+        }
+    }
 
-	return nRemoteAddr;
+    return nRemoteAddr;
 }
-
 
 /**
  * Static class method that establishes the socket connection on the given interface
@@ -54,28 +53,28 @@ u_long SocketConnector::lookupAddress(const char& pcHost)
  */
 SOCKET SocketConnector::establishConnection(u_long nRemoteAddr, u_short nPort, bool isUDP)
 {
-	// Create a socket
-	SOCKET sd = socket(AF_INET, isUDP ? SOCK_DGRAM : SOCK_STREAM, 0);
+    // Create a socket
+    SOCKET sd = socket(AF_INET, isUDP ? SOCK_DGRAM : SOCK_STREAM, 0);
 
-	//D(std::cout << __LINE__ << " of " << __FILE__ << " nRemoteAddr= " << nRemoteAddr << " nPort= " << nPort << std::endl;)
+    // D(std::cout << __LINE__ << " of " << __FILE__ << " nRemoteAddr= " << nRemoteAddr << " nPort= " << nPort << std::endl;)
 
-	if (sd != INVALID_SOCKET)
-	{
-		//D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
+    if (sd != INVALID_SOCKET)
+    {
+        // D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
 
-		sockaddr_in sinRemote;
-		sinRemote.sin_family = AF_INET;
-		sinRemote.sin_addr.s_addr = nRemoteAddr;
-		sinRemote.sin_port = htons(nPort);
+        sockaddr_in sinRemote;
+        sinRemote.sin_family = AF_INET;
+        sinRemote.sin_addr.s_addr = nRemoteAddr;
+        sinRemote.sin_port = htons(nPort);
 
-		if (connect(sd, (sockaddr*)&sinRemote, sizeof(sockaddr_in)) == SOCKET_ERROR)
-		{
-			//D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
-			sd = INVALID_SOCKET;
-		}
-	}
+        if (connect(sd, (sockaddr*)&sinRemote, sizeof(sockaddr_in)) == SOCKET_ERROR)
+        {
+            // D(std::cout << __LINE__ << " of " << __FILE__ << std::endl;)
+            sd = INVALID_SOCKET;
+        }
+    }
 
-	return sd;
+    return sd;
 }
 
 /**
@@ -89,24 +88,23 @@ SOCKET SocketConnector::establishConnection(u_long nRemoteAddr, u_short nPort, b
  */
 SOCKET SocketConnector::establishConnection(const char& pcHost, u_short nPort, bool isUDP)
 {
-	//D(std::cout << __LINE__ << " of " << __FILE__ << " pcHost= '" << &pcHost << "' nPort= " << nPort << std::endl;)
+    // D(std::cout << __LINE__ << " of " << __FILE__ << " pcHost= '" << &pcHost << "' nPort= " << nPort << std::endl;)
 
-	SOCKET	sd;
-	u_long	nRemoteAddress = lookupAddress(pcHost);
+    SOCKET sd;
+    u_long nRemoteAddress = lookupAddress(pcHost);
 
+    if (nRemoteAddress == INADDR_NONE)
+    {
+        D(std::cerr << __LINE__ << " of " << __FILE__ << WSAGetLastErrorMessage("lookup address") << std::endl;)
+        sd = INVALID_SOCKET;
+    }
+    else
+    {
+        sd = establishConnection(nRemoteAddress, nPort, isUDP);
+    }
 
-	if (nRemoteAddress == INADDR_NONE)
-	{
-		D(std::cerr  << __LINE__ << " of " << __FILE__ << WSAGetLastErrorMessage("lookup address") << std::endl;)
-		sd = INVALID_SOCKET;
-	}
-	else
-	{
-		sd = establishConnection(nRemoteAddress, nPort, isUDP);
-	}
-
-	return sd;
+    return sd;
 }
 
 //---------------------------------------------------------------------------
-//#pragma package(smart_init)
+// #pragma package(smart_init)

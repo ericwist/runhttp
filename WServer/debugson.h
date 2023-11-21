@@ -1,33 +1,32 @@
 #ifndef DebugsOnH
 #define DebugsOnH
 
-
-#ifdef  D
- #undef D
+#ifdef D
+#undef D
 #endif
 
-#ifdef  P
- #undef P
+#ifdef P
+#undef P
 #endif
 
-#ifdef  Q
- #undef Q
+#ifdef Q
+#undef Q
 #endif
 
-#ifdef	X
- #undef	X
+#ifdef X
+#undef X
 #endif
 
-#ifdef  PD
- #undef PD
+#ifdef PD
+#undef PD
 #endif
 
-#ifdef  PF
- #undef PF
+#ifdef PF
+#undef PF
 #endif
 
-#ifdef  PP
- #undef PP
+#ifdef PP
+#undef PP
 #endif
 
 /*
@@ -42,13 +41,38 @@
 #endif
 */
 
-#define D(x)    {x;};
-#define Q(x)    {x;fflush(stdout);pause();}
-#define P(x)    {PRINTF("%ls",x);};
-#define PF(x)   {PRINTF("%ls\n",x);};
-#define PD(x,y) {PRINTF("%ls Delay ...\n",x);Delay(y);};
-#define PP(x)   {PRINTF("%ls\n",x);pause();};
-#define	X()		{PRINTF("%ls @ %ld\n", __FILE__, __LINE__ );}
+#define D(x) \
+    {        \
+        x;   \
+    };
+#define Q(x)            \
+    {                   \
+        x;              \
+        fflush(stdout); \
+        pause();        \
+    }
+#define P(x)              \
+    {                     \
+        PRINTF("%ls", x); \
+    };
+#define PF(x)               \
+    {                       \
+        PRINTF("%ls\n", x); \
+    };
+#define PD(x, y)                      \
+    {                                 \
+        PRINTF("%ls Delay ...\n", x); \
+        Delay(y);                     \
+    };
+#define PP(x)               \
+    {                       \
+        PRINTF("%ls\n", x); \
+        pause();            \
+    };
+#define X()                                        \
+    {                                              \
+        PRINTF("%ls @ %ld\n", __FILE__, __LINE__); \
+    }
 
 #ifndef DEBUG
 #define DEBUG
@@ -57,7 +81,7 @@
 #ifndef DEBUG_UTILS
 #define DEBUG_UTILS
 
-#define	PFSTRING	"*no*string*"
+#define PFSTRING "*no*string*"
 #define PFSTR(x) ((x) ? x : PFSTRING)
 
 #endif

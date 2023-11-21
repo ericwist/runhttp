@@ -3,7 +3,7 @@
  *
  * Various utilities.
  *
- * E.J.W 11/11/23
+ * E.J.W 11/20/23
  */
 
 // ZZZ This file is also in FrameWork.dll. Need to consolidate.
@@ -12,6 +12,7 @@
 #define _WServer_UtilsH_
 
 #include <windows.h>
+#include <wbemcli.h>
 #include "WServer.h"
 
 // Used in HttpCookie & HttpResponse for Headers.

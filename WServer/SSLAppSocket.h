@@ -1,15 +1,14 @@
 //---------------------------------------------------------------------------
 // Author: Eric Wistrand 11/12/2023
 
-#ifndef	_WIN32_WCE	// [
+#ifndef _WIN32_WCE // [
 #ifndef SSLAppSocketH
 #define SSLAppSocketH
 
-
 /* SSLeay stuff */
-#include <openssl/ssl.h>
-#include <openssl/rsa.h>       
 #include <openssl/err.h>
+#include <openssl/rsa.h>
+#include <openssl/ssl.h>
 
 #ifdef SSL_ENGINE
 #include <openssl/engine.h>
@@ -17,12 +16,11 @@
 
 #include "AppSocket.h"
 
-
 /* Threading */
 /*
 #ifdef __SOLARIS__
-#include <thread.h>
 #include <synch.h>
+#include <thread.h>
 
 #define pthread_mutex_t mutex_t
 #define pthread_lock(x) mutext_lock(x)
@@ -49,58 +47,56 @@
 #endif
 */
 
-#ifdef	WIN32
+#ifdef WIN32
 
-#define	MUTEX_TYPE			HANDLE
-#define	MUTEX_SETUP(x)		(x) = CreateMutex(NULL, FALSE, NULL)
-#define	MUTEX_CLEANUP(x)	CloseHandle(x)
-#define	MUTEX_LOCK(x)		WaitForSingleObject((x), INFINITE)
-#define	MUTEX_UNLOCK(x)		ReleaseMutex(x)
-#define	THREAD_ID			GetCurrentThreadId()
+#define MUTEX_TYPE HANDLE
+#define MUTEX_SETUP(x) (x) = CreateMutex(NULL, FALSE, NULL)
+#define MUTEX_CLEANUP(x) CloseHandle(x)
+#define MUTEX_LOCK(x) WaitForSingleObject((x), INFINITE)
+#define MUTEX_UNLOCK(x) ReleaseMutex(x)
+#define THREAD_ID GetCurrentThreadId()
 
 #elif _POSIX_THREADS
 // _POSIX_THREADS is normally defined in unistd.h if pthreads are availabe on the platfomr
 
-#define	MUTEX_TYPE			pthread_mutex_
-#define	MUTEX_SETUP(x)		pthread_mutex_init(&(x), NULL)
-#define	MUTEX_CLEANUP(x)	pthread_mutex_destroy(&(x))
-#define	MUTEX_LOCK(x)		pthread_mutex_lock(&(x))
-#define	MUTEX_UNLOCK(x)		pthread_mutex_unlock(&(x))
-#define	THREAD_ID			pthread_self()
+#define MUTEX_TYPE pthread_mutex_
+#define MUTEX_SETUP(x) pthread_mutex_init(&(x), NULL)
+#define MUTEX_CLEANUP(x) pthread_mutex_destroy(&(x))
+#define MUTEX_LOCK(x) pthread_mutex_lock(&(x))
+#define MUTEX_UNLOCK(x) pthread_mutex_unlock(&(x))
+#define THREAD_ID pthread_self()
 
 #else
 #error You must define mutex operations appropriate for your platform!
 #endif
 
-
-
 #define INTERRUPT_EXN -2
 #define DISCONNECT_EXN -3
 #define TIMEOUT_EXN -4
 
-#ifdef	WIN32
+#ifdef WIN32
 #define ECONNRESET EPIPE
 #endif
 
 class WSERVER_API SSLAppSocket : public AppSocket
 {
 public:
-	//SSLAppSocket();
-	SSLAppSocket(SOCKET sd, SSL * ssl, int port, sockaddr_in& sinRemote, bool isUDP = false);
+    // SSLAppSocket();
+    SSLAppSocket(SOCKET sd, SSL* ssl, int port, sockaddr_in& sinRemote, bool isUDP = false);
     ~SSLAppSocket();
 
-	bool readByte(char * buf);
+    bool readByte(char* buf);
 
-	/**
-	 * Write the specified length of bytes to the socket.
-	 *
-	 * @param bytes - BYTE *, the bytes to write.
-	 * @param len - int, the length of the bytes to write.
-	 * @ret bool - FALSE if errors are encountered.
-	 */
-    bool writeBytes(const BYTE * bytes, int len);
+    /**
+     * Write the specified length of bytes to the socket.
+     *
+     * @param bytes - BYTE *, the bytes to write.
+     * @param len - int, the length of the bytes to write.
+     * @ret bool - FALSE if errors are encountered.
+     */
+    bool writeBytes(const BYTE* bytes, int len);
 
-#if	0	// [
+#if 0  // [
 	/**
 	 * Stream the string out the socket.
 	 * @param str - char *, the string of characters to write.
@@ -130,32 +126,31 @@ public:
 	 *	SSLAppSocket << "Welcome " << name << '.' << endl;
 	 */
 	SSLAppSocket& operator << (const char c);
-#endif	// ]
+#endif // ]
 
-/*	// Add the following operator << overrides:
-	bool
-	short
-	unsigned short
-	int
-	unsigned int
-	long
-	unsigned long
-	float
-	double
-	long double
-*/
+    /*	// Add the following operator << overrides:
+        bool
+        short
+        unsigned short
+        int
+        unsigned int
+        long
+        unsigned long
+        float
+        double
+        long double
+    */
 protected:
-	void ssl_safe_free();
-	int ssl_close();
-	int exception_status(int error);
-	int ssl_read(char *buf, int len);
-	int ssl_write(char *buf, int len);
+    void ssl_safe_free();
+    int ssl_close();
+    int exception_status(int error);
+    int ssl_read(char* buf, int len);
+    int ssl_write(char* buf, int len);
 
-	SSL		* ssl;
+    SSL* ssl;
 };
-
 
 //---------------------------------------------------------------------------
 #endif
 
-#endif				// ]
+#endif // ]

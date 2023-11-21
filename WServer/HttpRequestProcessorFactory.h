@@ -6,26 +6,25 @@
 
 #include "WServer.h"
 
-#include "RequestProcessorFactory.h"
 #include "HttpRequestProcessor.h"
+#include "RequestProcessorFactory.h"
 
 class WSERVER_API HttpRequestProcessorFactory : public RequestProcessorFactory
 {
 public:
-	HttpRequestProcessorFactory(const TCHAR * docRootPath, const TCHAR * indexFileName);
+    HttpRequestProcessorFactory(const TCHAR* docRootPath, const TCHAR* indexFileName);
 
-    RequestProcessor * createRequestProcessor();
+    RequestProcessor* createRequestProcessor();
 
 private:
-	const TCHAR * docRootPath;
-	const TCHAR * indexFileName;
+    const TCHAR* docRootPath;
+    const TCHAR* indexFileName;
 
-	/**
-	 * The SessionManager which will manage the request's sessions.
-	 */
-	SessionManager sessionManager;
+    /**
+     * The SessionManager which will manage the request's sessions.
+     */
+    SessionManager sessionManager;
 };
-
 
 //---------------------------------------------------------------------------
 #endif

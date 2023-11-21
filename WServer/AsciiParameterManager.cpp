@@ -6,23 +6,21 @@
  * Author: Eric Wistrand 11/12/2023
  */
 
-#ifdef	_WIN32_WCE	// [
+#ifdef _WIN32_WCE // [
 #include <windows.h>
-#endif				// ]
+#endif // ]
 
 #include "AsciiParameterManager.h"
 
-
-AsciiParameterManager::AsciiParameterManager() : parameters(NULL)
+AsciiParameterManager::AsciiParameterManager()
+: parameters(NULL)
 {
-
 }
 
 AsciiParameterManager::~AsciiParameterManager()
 {
-	deleteParameters();
+    deleteParameters();
 }
-
 
 /**
  * Sets a parameter with the given name and value. If the parameter
@@ -35,7 +33,7 @@ AsciiParameterManager::~AsciiParameterManager()
  */
 void AsciiParameterManager::setParameter(const char& name, const char& value)
 {
-	setKeyValue(name,value,&parameters);
+    setKeyValue(name, value, &parameters);
 }
 
 /**
@@ -47,7 +45,7 @@ void AsciiParameterManager::setParameter(const char& name, const char& value)
  */
 void AsciiParameterManager::addParameter(const char& name, const char& value)
 {
-	addKeyValue(name,value,&parameters);
+    addKeyValue(name, value, &parameters);
 }
 
 /**
@@ -63,16 +61,16 @@ void AsciiParameterManager::addParameter(const char& name, const char& value)
  *                 or NULL of the named parameter does not exist. Callers should NOT
  *                 modify or delete this value.
  */
-const char * AsciiParameterManager::getParameter(const char& name)
+const char* AsciiParameterManager::getParameter(const char& name)
 {
-	const char * value;
+    const char* value;
 
-	if ( parameters )
-		value = getValue(name,*parameters);
-	else
-		value = NULL;
+    if (parameters)
+        value = getValue(name, *parameters);
+    else
+        value = NULL;
 
-	return value;
+    return value;
 }
 
 /**
@@ -89,16 +87,16 @@ const char * AsciiParameterManager::getParameter(const char& name)
  *                  has the responsibility of deleting it, but should not modify or
  *                  delete the values contained in the array.
  */
-char ** AsciiParameterManager::getParameterValues(const char& name)
+char** AsciiParameterManager::getParameterValues(const char& name)
 {
-	char ** values;
+    char** values;
 
-	if ( parameters )
-		values = getValues(name,*parameters);
-	else
-		values = NULL;
+    if (parameters)
+        values = getValues(name, *parameters);
+    else
+        values = NULL;
 
-	return values;
+    return values;
 }
 
 /**
@@ -112,18 +110,17 @@ char ** AsciiParameterManager::getParameterValues(const char& name)
  * @ret char ** a pointer to a NULL terminated array of string object pointers containing the
  * names of the parameters; or NULL if there are no parameters.
  */
-char ** AsciiParameterManager::getParameterNames()
+char** AsciiParameterManager::getParameterNames()
 {
-	char ** names;
+    char** names;
 
-	if ( parameters )
-		names = getKeyNames(*parameters);
-	else
-		names = NULL;
+    if (parameters)
+        names = getKeyNames(*parameters);
+    else
+        names = NULL;
 
-	return names;
+    return names;
 }
-
 
 /**
  * Removes the named parameter if it exists.
@@ -135,7 +132,7 @@ char ** AsciiParameterManager::getParameterNames()
  */
 bool AsciiParameterManager::removeParameter(const char& name)
 {
-	return removeKeyValue(name,&parameters);
+    return removeKeyValue(name, &parameters);
 }
 
 /**
@@ -143,5 +140,5 @@ bool AsciiParameterManager::removeParameter(const char& name)
  */
 void AsciiParameterManager::deleteParameters()
 {
-	deleteKeyValues(&parameters);
+    deleteKeyValues(&parameters);
 }

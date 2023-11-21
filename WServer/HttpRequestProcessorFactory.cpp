@@ -1,18 +1,19 @@
 //---------------------------------------------------------------------------
 // Author: Eric Wistrand 11/12/2023
-//#pragma hdrstop
+// #pragma hdrstop
 
 #include "HttpRequestProcessorFactory.h"
 
-HttpRequestProcessorFactory::HttpRequestProcessorFactory(const TCHAR * docRootPath, const TCHAR * indexFileName) : docRootPath(docRootPath), indexFileName(indexFileName)
+HttpRequestProcessorFactory::HttpRequestProcessorFactory(const TCHAR* docRootPath, const TCHAR* indexFileName)
+: docRootPath(docRootPath)
+, indexFileName(indexFileName)
 {
 }
 
-RequestProcessor * HttpRequestProcessorFactory::createRequestProcessor()
+RequestProcessor* HttpRequestProcessorFactory::createRequestProcessor()
 {
-	return new HttpRequestProcessor(docRootPath,indexFileName,sessionManager);
+    return new HttpRequestProcessor(docRootPath, indexFileName, sessionManager);
 }
-
 
 //---------------------------------------------------------------------------
-//#pragma package(smart_init)
+// #pragma package(smart_init)

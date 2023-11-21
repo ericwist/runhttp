@@ -8,26 +8,24 @@
 
 #include "ws-util.h"
 
-#ifndef	_WIN32_WCE	// [
-#include <iostream>
+#ifndef _WIN32_WCE // [
 #include <algorithm>
+#include <iostream>
 #include <strstream>
 
 using namespace std;
-#endif				// ]
+#endif // ]
 
-#if !defined(_WINSOCK2API_) 
+#if !defined(_WINSOCK2API_)
 // Winsock 2 header defines this, but Winsock 1.1 header doesn't.  In
 // the interest of not requiring the Winsock 2 SDK which we don't really
 // need, we'll just define this one constant ourselves.
 #define SD_SEND 1
 #endif
 
-
 //// Constants /////////////////////////////////////////////////////////
 
 const int kBufferSize = 1024;
-        
 
 //// Statics ///////////////////////////////////////////////////////////
 
@@ -35,124 +33,124 @@ const int kBufferSize = 1024;
 // Note that this list must remain sorted by the error constants'
 // values, because we do a binary search on the list when looking up
 // items.
-static struct ErrorEntry {
+static struct ErrorEntry
+{
     int nID;
     const char* pcMessage;
 
-    ErrorEntry(int id, const char* pc = 0) : 
-    nID(id), 
-    pcMessage(pc) 
-    { 
+    ErrorEntry(int id, const char* pc = 0)
+    : nID(id)
+    , pcMessage(pc)
+    {
     }
 
-    bool operator<(const ErrorEntry& rhs) 
+    bool operator<(const ErrorEntry& rhs)
     {
         return nID < rhs.nID;
     }
 } gaErrorList[] = {
-    ErrorEntry(0,                  "No error"),
-    ErrorEntry(WSAEINTR,           "Interrupted system call"),
-    ErrorEntry(WSAEBADF,           "Bad file number"),
-    ErrorEntry(WSAEACCES,          "Permission denied"),
-    ErrorEntry(WSAEFAULT,          "Bad address"),
-    ErrorEntry(WSAEINVAL,          "Invalid argument"),
-    ErrorEntry(WSAEMFILE,          "Too many open sockets"),
-    ErrorEntry(WSAEWOULDBLOCK,     "Operation would block"),
-    ErrorEntry(WSAEINPROGRESS,     "Operation now in progress"),
-    ErrorEntry(WSAEALREADY,        "Operation already in progress"),
-    ErrorEntry(WSAENOTSOCK,        "Socket operation on non-socket"),
-    ErrorEntry(WSAEDESTADDRREQ,    "Destination address required"),
-    ErrorEntry(WSAEMSGSIZE,        "Message too long"),
-    ErrorEntry(WSAEPROTOTYPE,      "Protocol wrong type for socket"),
-    ErrorEntry(WSAENOPROTOOPT,     "Bad protocol option"),
+    ErrorEntry(0, "No error"),
+    ErrorEntry(WSAEINTR, "Interrupted system call"),
+    ErrorEntry(WSAEBADF, "Bad file number"),
+    ErrorEntry(WSAEACCES, "Permission denied"),
+    ErrorEntry(WSAEFAULT, "Bad address"),
+    ErrorEntry(WSAEINVAL, "Invalid argument"),
+    ErrorEntry(WSAEMFILE, "Too many open sockets"),
+    ErrorEntry(WSAEWOULDBLOCK, "Operation would block"),
+    ErrorEntry(WSAEINPROGRESS, "Operation now in progress"),
+    ErrorEntry(WSAEALREADY, "Operation already in progress"),
+    ErrorEntry(WSAENOTSOCK, "Socket operation on non-socket"),
+    ErrorEntry(WSAEDESTADDRREQ, "Destination address required"),
+    ErrorEntry(WSAEMSGSIZE, "Message too long"),
+    ErrorEntry(WSAEPROTOTYPE, "Protocol wrong type for socket"),
+    ErrorEntry(WSAENOPROTOOPT, "Bad protocol option"),
     ErrorEntry(WSAEPROTONOSUPPORT, "Protocol not supported"),
     ErrorEntry(WSAESOCKTNOSUPPORT, "Socket type not supported"),
-    ErrorEntry(WSAEOPNOTSUPP,      "Operation not supported on socket"),
-    ErrorEntry(WSAEPFNOSUPPORT,    "Protocol family not supported"),
-    ErrorEntry(WSAEAFNOSUPPORT,    "Address family not supported"),
-    ErrorEntry(WSAEADDRINUSE,      "Address already in use"),
-    ErrorEntry(WSAEADDRNOTAVAIL,   "Can't assign requested address"),
-    ErrorEntry(WSAENETDOWN,        "Network is down"),
-    ErrorEntry(WSAENETUNREACH,     "Network is unreachable"),
-    ErrorEntry(WSAENETRESET,       "Net connection reset"),
-    ErrorEntry(WSAECONNABORTED,    "Software caused connection abort"),
-    ErrorEntry(WSAECONNRESET,      "Connection reset by peer"),
-    ErrorEntry(WSAENOBUFS,         "No buffer space available"),
-    ErrorEntry(WSAEISCONN,         "Socket is already connected"),
-    ErrorEntry(WSAENOTCONN,        "Socket is not connected"),
-    ErrorEntry(WSAESHUTDOWN,       "Can't send after socket shutdown"),
-    ErrorEntry(WSAETOOMANYREFS,    "Too many references, can't splice"),
-    ErrorEntry(WSAETIMEDOUT,       "Connection timed out"),
-    ErrorEntry(WSAECONNREFUSED,    "Connection refused"),
-    ErrorEntry(WSAELOOP,           "Too many levels of symbolic links"),
-    ErrorEntry(WSAENAMETOOLONG,    "File name too long"),
-    ErrorEntry(WSAEHOSTDOWN,       "Host is down"),
-    ErrorEntry(WSAEHOSTUNREACH,    "No route to host"),
-    ErrorEntry(WSAENOTEMPTY,       "Directory not empty"),
-    ErrorEntry(WSAEPROCLIM,        "Too many processes"),
-    ErrorEntry(WSAEUSERS,          "Too many users"),
-    ErrorEntry(WSAEDQUOT,          "Disc quota exceeded"),
-    ErrorEntry(WSAESTALE,          "Stale NFS file handle"),
-    ErrorEntry(WSAEREMOTE,         "Too many levels of remote in path"),
-    ErrorEntry(WSASYSNOTREADY,     "Network system is unavailable"),
+    ErrorEntry(WSAEOPNOTSUPP, "Operation not supported on socket"),
+    ErrorEntry(WSAEPFNOSUPPORT, "Protocol family not supported"),
+    ErrorEntry(WSAEAFNOSUPPORT, "Address family not supported"),
+    ErrorEntry(WSAEADDRINUSE, "Address already in use"),
+    ErrorEntry(WSAEADDRNOTAVAIL, "Can't assign requested address"),
+    ErrorEntry(WSAENETDOWN, "Network is down"),
+    ErrorEntry(WSAENETUNREACH, "Network is unreachable"),
+    ErrorEntry(WSAENETRESET, "Net connection reset"),
+    ErrorEntry(WSAECONNABORTED, "Software caused connection abort"),
+    ErrorEntry(WSAECONNRESET, "Connection reset by peer"),
+    ErrorEntry(WSAENOBUFS, "No buffer space available"),
+    ErrorEntry(WSAEISCONN, "Socket is already connected"),
+    ErrorEntry(WSAENOTCONN, "Socket is not connected"),
+    ErrorEntry(WSAESHUTDOWN, "Can't send after socket shutdown"),
+    ErrorEntry(WSAETOOMANYREFS, "Too many references, can't splice"),
+    ErrorEntry(WSAETIMEDOUT, "Connection timed out"),
+    ErrorEntry(WSAECONNREFUSED, "Connection refused"),
+    ErrorEntry(WSAELOOP, "Too many levels of symbolic links"),
+    ErrorEntry(WSAENAMETOOLONG, "File name too long"),
+    ErrorEntry(WSAEHOSTDOWN, "Host is down"),
+    ErrorEntry(WSAEHOSTUNREACH, "No route to host"),
+    ErrorEntry(WSAENOTEMPTY, "Directory not empty"),
+    ErrorEntry(WSAEPROCLIM, "Too many processes"),
+    ErrorEntry(WSAEUSERS, "Too many users"),
+    ErrorEntry(WSAEDQUOT, "Disc quota exceeded"),
+    ErrorEntry(WSAESTALE, "Stale NFS file handle"),
+    ErrorEntry(WSAEREMOTE, "Too many levels of remote in path"),
+    ErrorEntry(WSASYSNOTREADY, "Network system is unavailable"),
     ErrorEntry(WSAVERNOTSUPPORTED, "Winsock version out of range"),
-    ErrorEntry(WSANOTINITIALISED,  "WSAStartup not yet called"),
-    ErrorEntry(WSAEDISCON,         "Graceful shutdown in progress"),
-    ErrorEntry(WSAHOST_NOT_FOUND,  "Host not found"),
-    ErrorEntry(WSANO_DATA,         "No host data of that type was found")
-};
+    ErrorEntry(WSANOTINITIALISED, "WSAStartup not yet called"),
+    ErrorEntry(WSAEDISCON, "Graceful shutdown in progress"),
+    ErrorEntry(WSAHOST_NOT_FOUND, "Host not found"),
+    ErrorEntry(WSANO_DATA, "No host data of that type was found")};
 const int kNumMessages = sizeof(gaErrorList) / sizeof(ErrorEntry);
 
-
 //// WSAGetLastErrorMessage ////////////////////////////////////////////
-// A function similar in spirit to Unix's perror() that tacks a canned 
+// A function similar in spirit to Unix's perror() that tacks a canned
 // interpretation of the value of WSAGetLastError() onto the end of a
 // passed string, separated by a ": ".  Generally, you should implement
 // smarter error handling than this, but for default cases and simple
 // programs, this function is sufficient.
 const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, char acErrorBuffer[], int acErrorBufferSize,
-    int nErrorID /* = 0 */)
+                                   int nErrorID /* = 0 */)
 {
     // Build basic error string
-    //static char acErrorBuffer[256];
-    //ostrstream outs(acErrorBuffer, sizeof(acErrorBuffer));
+    // static char acErrorBuffer[256];
+    // ostrstream outs(acErrorBuffer, sizeof(acErrorBuffer));
 
-	if ( acErrorBuffer && (acErrorBufferSize > 0) )
-	{
-#ifndef	_WIN32_WCE	// [
-		ostrstream outs(acErrorBuffer, acErrorBufferSize);
+    if (acErrorBuffer && (acErrorBufferSize > 0))
+    {
+#ifndef _WIN32_WCE // [
+        ostrstream outs(acErrorBuffer, acErrorBufferSize);
 
-		outs << pcMessagePrefix << ": ";
+        outs << pcMessagePrefix << ": ";
 
-		// Tack appropriate canned message onto end of supplied message 
-		// prefix. Note that we do a binary search here: gaErrorList must be
-		// sorted by the error constant's value.
-		ErrorEntry* pEnd = gaErrorList + kNumMessages;
-		ErrorEntry Target(nErrorID ? nErrorID : WSAGetLastError());
-		ErrorEntry* it = lower_bound(gaErrorList, pEnd, Target);
-		if ((it != pEnd) && (it->nID == Target.nID)) {
-			outs << it->pcMessage;
-		}
-		else {
-			// Didn't find error in list, so make up a generic one
-			outs << "unknown error";
-		}
-		outs << " (" << Target.nID << ")";
+        // Tack appropriate canned message onto end of supplied message
+        // prefix. Note that we do a binary search here: gaErrorList must be
+        // sorted by the error constant's value.
+        ErrorEntry* pEnd = gaErrorList + kNumMessages;
+        ErrorEntry Target(nErrorID ? nErrorID : WSAGetLastError());
+        ErrorEntry* it = lower_bound(gaErrorList, pEnd, Target);
+        if ((it != pEnd) && (it->nID == Target.nID))
+        {
+            outs << it->pcMessage;
+        }
+        else
+        {
+            // Didn't find error in list, so make up a generic one
+            outs << "unknown error";
+        }
+        outs << " (" << Target.nID << ")";
 
-		// Finish error message off and return it.
-		outs << ends;
-		acErrorBuffer[acErrorBufferSize - 1] = '\0';
-#else				// [
-	acErrorBuffer[0] = 0;
-#endif				// ]
-
-	}
+        // Finish error message off and return it.
+        outs << ends;
+        acErrorBuffer[acErrorBufferSize - 1] = '\0';
+#else  // [
+        acErrorBuffer[0] = 0;
+#endif // ]
+    }
 
     return acErrorBuffer;
 }
 
 //// WSAGetLastErrorMessage ////////////////////////////////////////////
-// A function similar in spirit to Unix's perror() that tacks a canned 
+// A function similar in spirit to Unix's perror() that tacks a canned
 // interpretation of the value of WSAGetLastError() onto the end of a
 // passed string, separated by a ": ".  Generally, you should implement
 // smarter error handling than this, but for default cases and simple
@@ -161,14 +159,13 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, char acErrorBuff
 // This function returns a pointer to an internal static buffer, so you
 // must copy the data from this function before you call it again.  It
 // follows that this function is also not thread-safe.
-const char * WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID /*= 0*/)
+const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID /*= 0*/)
 {
     // Build basic error string
     static char acErrorBuffer[256];
 
-	return WSAGetLastErrorMessage(pcMessagePrefix, acErrorBuffer, sizeof(acErrorBuffer), nErrorID);
+    return WSAGetLastErrorMessage(pcMessagePrefix, acErrorBuffer, sizeof(acErrorBuffer), nErrorID);
 }
-
 
 //// ShutdownConnection ////////////////////////////////////////////////
 // Gracefully shuts the connection sd down.  Returns true if we're
@@ -179,7 +176,8 @@ bool ShutdownConnection(SOCKET sd, bool isUDP)
     // Disallow any further data sends.  This will tell the other side
     // that we want to go away now.  If we skip this step, we don't
     // shut the connection down nicely.
-    if (shutdown(sd, SD_SEND) == SOCKET_ERROR) {
+    if (shutdown(sd, SD_SEND) == SOCKET_ERROR)
+    {
         return false;
     }
 
@@ -190,35 +188,39 @@ bool ShutdownConnection(SOCKET sd, bool isUDP)
     // host has closed its side of the connection.
 
     char acReadBuffer[kBufferSize];
-    while (!isUDP /*1*/) {
+    while (!isUDP /*1*/)
+    {
         int nNewBytes;
-/*
-		if ( !isUDP )
-			nNewBytes = recv(sd, acReadBuffer, kBufferSize, 0);
-		else
-			nNewBytes = recvfrom(sd, acReadBuffer, kBufferSize, 0, NULL, NULL);
-*/
-		nNewBytes = recv(sd, acReadBuffer, kBufferSize, 0);
-        if (nNewBytes == SOCKET_ERROR) {
+        /*
+                if ( !isUDP )
+                    nNewBytes = recv(sd, acReadBuffer, kBufferSize, 0);
+                else
+                    nNewBytes = recvfrom(sd, acReadBuffer, kBufferSize, 0, NULL, NULL);
+        */
+        nNewBytes = recv(sd, acReadBuffer, kBufferSize, 0);
+        if (nNewBytes == SOCKET_ERROR)
+        {
             return false;
         }
-        else if (nNewBytes != 0) {
-#ifndef	_WIN32_WCE	// [
-            cerr << endl << "FYI, received " << nNewBytes <<
-                    " unexpected bytes during shutdown." << endl;
-#endif				// ]
+        else if (nNewBytes != 0)
+        {
+#ifndef _WIN32_WCE // [
+            cerr << endl
+                 << "FYI, received " << nNewBytes << " unexpected bytes during shutdown." << endl;
+#endif // ]
         }
-        else {
+        else
+        {
             // Okay, we're done!
             break;
         }
     }
 
     // Close the socket.
-    if (closesocket(sd) == SOCKET_ERROR) {
+    if (closesocket(sd) == SOCKET_ERROR)
+    {
         return false;
     }
 
     return true;
 }
-

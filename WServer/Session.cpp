@@ -10,48 +10,53 @@
 #include <string.h>
 #include <windows.h>
 
-#ifndef	_WIN32_WCE	// [
+#ifndef _WIN32_WCE // [
 #include <iostream>
-#endif				// ]
+#endif // ]
 
-#include "Session.h"
 #include "Platform.h"
+#include "Session.h"
 #include "SessionManager.h"
 
-#ifndef	_WIN32_WCE	// [
+#ifndef _WIN32_WCE // [
 using namespace std;
-#endif				// ]
+#endif // ]
 
 /**
  * Create a Session object which will be managed by the supplied SessionManager.
  * @param sessionManager SessionManager&, a reference to the SessionManager that
  *	will manage this session.
  */
-Session::Session(SessionManager& sessionManager) : sessionManager(sessionManager),
-	id(NULL), next(NULL), sessionIsNew(TRUE), valid(TRUE), referenceCount(0),
-	idFromCookie(FALSE)
+Session::Session(SessionManager& sessionManager)
+: sessionManager(sessionManager)
+, id(NULL)
+, next(NULL)
+, sessionIsNew(TRUE)
+, valid(TRUE)
+, referenceCount(0)
+, idFromCookie(FALSE)
 {
-	creationTime = lastAccessedTime = thisAccessedTime = Platform::getCurrentMillis();
+    creationTime = lastAccessedTime = thisAccessedTime = Platform::getCurrentMillis();
 }
 
 Session::~Session()
 {
-	if ( id )
-		delete[] id;
+    if (id)
+        delete[] id;
 }
 
 /*
 void * Session::operator new( size_t stAllocateBlock, void * args )
 {
-	va_list list;
+    va_list list;
 
-	va_start(list, args);
+    va_start(list, args);
 
-	void * ptr =  ::new void[stAllocateBlock,args,list];
+    void * ptr =  ::new void[stAllocateBlock,args,list];
 
-	va_end(list);
+    va_end(list);
 
-	return ptr;
+    return ptr;
 }
 */
 /**
@@ -62,11 +67,11 @@ void * Session::operator new( size_t stAllocateBlock, void * args )
  */
 void Session::setSessionID(const char& id)
 {
-	if ( this->id )
-		delete[] this->id;
+    if (this->id)
+        delete[] this->id;
 
-	this->id = new char[strlen(&id)+1];
-	strcpy(this->id,&id);
+    this->id = new char[strlen(&id) + 1];
+    strcpy(this->id, &id);
 }
 
 /**
@@ -76,7 +81,7 @@ void Session::setSessionID(const char& id)
  */
 const char& Session::getSessionID()
 {
-	return *id;
+    return *id;
 }
 
 /**
@@ -87,7 +92,7 @@ const char& Session::getSessionID()
  */
 long Session::getCreationTime()
 {
-	return creationTime;
+    return creationTime;
 }
 
 /**
@@ -95,24 +100,23 @@ long Session::getCreationTime()
  */
 void Session::invalidate()
 {
-	Platform::lockMutex(sessionManager.sessionMutex);
+    Platform::lockMutex(sessionManager.sessionMutex);
 
-	valid = FALSE;
-	removeAllAttributes();
-	setSessionID(*"");
+    valid = FALSE;
+    removeAllAttributes();
+    setSessionID(*"");
 
-	Platform::unlockMutex(sessionManager.sessionMutex);
+    Platform::unlockMutex(sessionManager.sessionMutex);
 }
-
 
 /**
  * Return the <code>valid</code> flag for this session.
  */
 bool Session::isValid()
 {
-	//Platform::lockMutex(sessionManager.sessionMutex);
-	return valid;
-	//Platform::unlockMutex(sessionManager.sessionMutex);
+    // Platform::lockMutex(sessionManager.sessionMutex);
+    return valid;
+    // Platform::unlockMutex(sessionManager.sessionMutex);
 }
 
 /**
@@ -125,7 +129,7 @@ bool Session::isValid()
  */
 bool Session::isNew()
 {
-	return sessionIsNew;
+    return sessionIsNew;
 }
 
 /**
@@ -133,11 +137,11 @@ bool Session::isNew()
  */
 void Session::access()
 {
-	Platform::lockMutex(sessionManager.sessionMutex);
-	lastAccessedTime = thisAccessedTime;
-	thisAccessedTime = Platform::getCurrentMillis();
-	sessionIsNew=false;
-	Platform::unlockMutex(sessionManager.sessionMutex);
+    Platform::lockMutex(sessionManager.sessionMutex);
+    lastAccessedTime = thisAccessedTime;
+    thisAccessedTime = Platform::getCurrentMillis();
+    sessionIsNew = false;
+    Platform::unlockMutex(sessionManager.sessionMutex);
 }
 
 /**
@@ -148,7 +152,7 @@ void Session::access()
  */
 long Session::getLastAccessedTime()
 {
-	return lastAccessedTime;
+    return lastAccessedTime;
 }
 
 /**
@@ -157,7 +161,7 @@ long Session::getLastAccessedTime()
  */
 bool Session::isIDFromCookie()
 {
-	return idFromCookie;
+    return idFromCookie;
 }
 
 /**
@@ -166,9 +170,8 @@ bool Session::isIDFromCookie()
  */
 void Session::setIDFromCookie(bool idFromCookie)
 {
-	this->idFromCookie = idFromCookie;
+    this->idFromCookie = idFromCookie;
 }
-
 
 /**
  * Increase the reference count by 1. This is the reference count of objects that
@@ -182,7 +185,7 @@ void Session::setIDFromCookie(bool idFromCookie)
  */
 int Session::addReference()
 {
-	return ++referenceCount;
+    return ++referenceCount;
 }
 
 /**
@@ -197,5 +200,5 @@ int Session::addReference()
  */
 int Session::removeReference()
 {
-	return --referenceCount;
+    return --referenceCount;
 }

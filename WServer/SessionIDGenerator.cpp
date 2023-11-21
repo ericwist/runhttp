@@ -3,17 +3,16 @@
  * Author: Eric Wistrand 11/12/2023
  */
 
-
 #include "SessionIDGenerator.h"
 #include "Platform.h"
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef	_WIN32_WCE	// [
+#ifndef _WIN32_WCE // [
 #include <iostream>
 
 using namespace std;
-#endif				// ]
+#endif // ]
 
 // MAX_RADIX is 36
 const long SessionIdGenerator::MAX_RADIX = 36;
@@ -50,18 +49,16 @@ const long SessionIdGenerator::ticDifference = 2000;
 int SessionIdGenerator::session_count = 0;
 long SessionIdGenerator::lastTimeVal = 0;
 
-
 SessionIdGenerator::SessionIdGenerator()
 {
-	generateMutex = Platform::makeMutex();
-	srand(Platform::getCurrentMillis());
+    generateMutex = Platform::makeMutex();
+    srand(Platform::getCurrentMillis());
 }
 
 SessionIdGenerator::~SessionIdGenerator()
 {
-	Platform::closeMutex(generateMutex);
+    Platform::closeMutex(generateMutex);
 }
-
 
 /**
  * Generate a unique session ID. Optionally append the supplied appendID (if appendID is NON NULL).
@@ -70,106 +67,105 @@ SessionIdGenerator::~SessionIdGenerator()
  * @ret char * - A pointer to the newly allocated session char *. Callers have the responsibility
  *	of deleting this pointer.
  */
-char * SessionIdGenerator::generateId(const char * appendID)
+char* SessionIdGenerator::generateId(const char* appendID)
 {
-	Platform::lockMutex(generateMutex);
+    Platform::lockMutex(generateMutex);
 
-	char buf[100];
+    char buf[100];
 
-	// random value ..
-	unsigned long n = rand();
+    // random value ..
+    unsigned long n = rand();
 
-#ifndef	_WIN32_WCE	// [
-	// ZZZ warning C4146: unary minus operator applied to unsigned type, result still unsigned.
-	if (n < 0)
-		n = -n;
-#endif				// ]
+#ifndef _WIN32_WCE // [
+    // ZZZ warning C4146: unary minus operator applied to unsigned type, result still unsigned.
+    if (n < 0)
+        n = -n;
+#endif // ]
 
-	//D(cout << "generateId() 0: n= " << n << endl;)
-	n *= Platform::getCurrentMillis();
+    // D(cout << "generateId() 0: n= " << n << endl;)
+    n *= Platform::getCurrentMillis();
 
-	//D(cout << "generateId() 1: n= " << n << endl;)
-/**/
-	n %= maxRandomLen;
+    // D(cout << "generateId() 1: n= " << n << endl;)
+    /**/
+    n %= maxRandomLen;
 
-	//D(cout << "generateId() 2: n= " << n << endl;)
+    // D(cout << "generateId() 2: n= " << n << endl;)
 
-	// add maxLen to pad the leading characters with '0'; remove
-	// first digit with substring.
-	n += maxRandomLen;
-/**/
+    // add maxLen to pad the leading characters with '0'; remove
+    // first digit with substring.
+    n += maxRandomLen;
+    /**/
 
-/*
-	n += Platform::getCurrentMillis();
-	//D(cout << "generateId() 2: n= " << n << endl;)
+    /*
+        n += Platform::getCurrentMillis();
+        //D(cout << "generateId() 2: n= " << n << endl;)
 
-	n %= maxRandomLen;
-/**/
-	//D(cout << "generateId() 3: n= " << n << endl;)
+        n %= maxRandomLen;
+    /**/
+    // D(cout << "generateId() 3: n= " << n << endl;)
 
-	_itoa(n, buf, MAX_RADIX);
+    _itoa(n, buf, MAX_RADIX);
 
-	//D(cout << "generateId() 4: buf= " << buf << endl;)
+    // D(cout << "generateId() 4: buf= " << buf << endl;)
 
-	// Remove the first digit.
-	strcpy(buf,buf+1);
+    // Remove the first digit.
+    strcpy(buf, buf + 1);
 
-	//D(cout << "generateId() 5: buf= " << buf << endl;)
+    // D(cout << "generateId() 5: buf= " << buf << endl;)
 
-	long timeVal = (Platform::getCurrentMillis() / ticDifference);
+    long timeVal = (Platform::getCurrentMillis() / ticDifference);
 
-	//D(cout << "generateId() 6: timeVal= " << timeVal << endl;)
+    // D(cout << "generateId() 6: timeVal= " << timeVal << endl;)
 
-	// cut..
-	timeVal %= maxSessionLifespanTics;
+    // cut..
+    timeVal %= maxSessionLifespanTics;
 
-	//D(cout << "generateId() 7: timeVal= " << timeVal << endl;)
+    // D(cout << "generateId() 7: timeVal= " << timeVal << endl;)
 
-	// padding, see above
-	timeVal += maxSessionLifespanTics;
+    // padding, see above
+    timeVal += maxSessionLifespanTics;
 
-	//D(cout << "generateId() 8: timeVal= " << timeVal << endl;)
+    // D(cout << "generateId() 8: timeVal= " << timeVal << endl;)
 
-	int	len = strlen(buf);
-	_itoa(timeVal, &buf[len], MAX_RADIX);
+    int len = strlen(buf);
+    _itoa(timeVal, &buf[len], MAX_RADIX);
 
-	//D(cout << "generateId() 9: buf= " << buf << endl;)
+    // D(cout << "generateId() 9: buf= " << buf << endl;)
 
-	// Remove the first digit.
-	strcpy(&buf[len],&buf[len+1]);
+    // Remove the first digit.
+    strcpy(&buf[len], &buf[len + 1]);
 
-	//D(cout << "generateId() 10: buf= " << buf << endl;)
+    // D(cout << "generateId() 10: buf= " << buf << endl;)
 
-	/*
-	 * make the string unique: append the session count since last
-	 * time flip.
-	 */
-	// count sessions only within tics. So the 'real' session count
-	// isn't exposed to the public ..
-	if (lastTimeVal != timeVal)
-	{
-		lastTimeVal = timeVal;
-		session_count = 0;
-	}
+    /*
+     * make the string unique: append the session count since last
+     * time flip.
+     */
+    // count sessions only within tics. So the 'real' session count
+    // isn't exposed to the public ..
+    if (lastTimeVal != timeVal)
+    {
+        lastTimeVal = timeVal;
+        session_count = 0;
+    }
 
-	len = strlen(buf);
-	_itoa(++session_count, &buf[len], MAX_RADIX);
+    len = strlen(buf);
+    _itoa(++session_count, &buf[len], MAX_RADIX);
 
-	//D(cout << "generateId() 11: buf= " << buf << endl;)
+    // D(cout << "generateId() 11: buf= " << buf << endl;)
 
-	if ( appendID && *appendID )
-	{
-		len = sizeof (buf) - strlen(buf) - 1;
-		strncat(buf,appendID,len);
-		buf[sizeof (buf) - 1] = 0;
-	}
+    if (appendID && *appendID)
+    {
+        len = sizeof(buf) - strlen(buf) - 1;
+        strncat(buf, appendID, len);
+        buf[sizeof(buf) - 1] = 0;
+    }
 
-	char * str = new char[strlen(buf)+1];
-	strcpy(str,buf);
+    char* str = new char[strlen(buf) + 1];
+    strcpy(str, buf);
 
-	D(cout << "generateId() Returning: " << str << endl;)
+    D(cout << "generateId() Returning: " << str << endl;)
 
-	Platform::unlockMutex(generateMutex);
-	return str;
+    Platform::unlockMutex(generateMutex);
+    return str;
 }
-

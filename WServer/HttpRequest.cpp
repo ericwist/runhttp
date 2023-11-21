@@ -1,15 +1,14 @@
 //---------------------------------------------------------------------------
 // Author: Eric Wistrand 11/12/2023
-//#pragma hdrstop
+// #pragma hdrstop
 
 #include "HttpRequest.h"
+#include "HttpRequestProcessor.h"
 #include "HttpResponse.h"
 #include "SessionIdGenerator.h"
-#include "HttpRequestProcessor.h"
 #include "StdRedirect.h"
 
-//#include "debugson.h"
-
+// #include "debugson.h"
 
 /**
  * Create an HttpRequest that has its session mananged by the supplied
@@ -21,67 +20,75 @@
  * @param response HttpResponse&, a reference to the HttpResponse object used
  *	to respond to this request.
  */
-HttpRequest::HttpRequest(SessionManager& sessionManager, HttpRequestProcessor& requestProcessor, HttpResponse& response) : serverName(NULL),
-	method(NULL), uri(NULL), query(NULL), protocol(NULL),
-	serverPort(-1), remoteAddr(NULL), cookieList(NULL), session(NULL),
-	sessionManager(sessionManager), requestProcessor(requestProcessor),
-	response(response), appSock(NULL)
+HttpRequest::HttpRequest(SessionManager& sessionManager, HttpRequestProcessor& requestProcessor, HttpResponse& response)
+: serverName(NULL)
+, method(NULL)
+, uri(NULL)
+, query(NULL)
+, protocol(NULL)
+, serverPort(-1)
+, remoteAddr(NULL)
+, cookieList(NULL)
+, session(NULL)
+, sessionManager(sessionManager)
+, requestProcessor(requestProcessor)
+, response(response)
+, appSock(NULL)
 {
-	// ZZZ this seems to cause problems when this object is deleted while the std is being
-	// restored if some other code tries to write to cout or cerr (because of an error or something).
-	// This is happening inside ws-util.cpp in ShutdownConnection();
+    // ZZZ this seems to cause problems when this object is deleted while the std is being
+    // restored if some other code tries to write to cout or cerr (because of an error or something).
+    // This is happening inside ws-util.cpp in ShutdownConnection();
 
-
-#ifndef	_WIN32_WCE	// [
-	 stdRedirect = NULL;
-#endif				// ]
+#ifndef _WIN32_WCE // [
+    stdRedirect = NULL;
+#endif // ]
 }
 
 HttpRequest::~HttpRequest()
 {
-	if ( serverName )
-		delete[] serverName;
+    if (serverName)
+        delete[] serverName;
 
-	if ( remoteAddr )
-		delete[] remoteAddr;
+    if (remoteAddr)
+        delete[] remoteAddr;
 
-	if ( method )
-		delete[] method;
+    if (method)
+        delete[] method;
 
-	if ( uri )
-		delete[] uri;
+    if (uri)
+        delete[] uri;
 
-	if ( query )
-		delete[] query;
+    if (query)
+        delete[] query;
 
-	if ( protocol )
-		delete[] protocol;
+    if (protocol)
+        delete[] protocol;
 
-    HttpCookie * cookie = cookieList;
+    HttpCookie* cookie = cookieList;
 
-    while ( cookie )
+    while (cookie)
     {
-		cookieList = cookie->next;
+        cookieList = cookie->next;
         delete cookie;
         cookie = cookieList;
     }
 
-	if ( session )
-		session->removeReference();
+    if (session)
+        session->removeReference();
 
-#ifndef	_WIN32_WCE	// [
-	if ( stdRedirect )
-		delete stdRedirect;
-#endif				// ]
+#ifndef _WIN32_WCE // [
+    if (stdRedirect)
+        delete stdRedirect;
+#endif // ]
 }
 
 /**
  * Get the request method.
  * @return const char *, a character pointer to the method string, or NULL. Callers must NOT modify or delete this constant value.
  */
-const char * HttpRequest::getMethod()
+const char* HttpRequest::getMethod()
 {
-	return method;
+    return method;
 }
 
 /**
@@ -90,20 +97,20 @@ const char * HttpRequest::getMethod()
  */
 void HttpRequest::setMethod(const char& method)
 {
-	if ( this->method )
-		delete[] this->method;
+    if (this->method)
+        delete[] this->method;
 
-	this->method = new char[strlen(&method)+1];
-	strcpy(this->method, &method);
+    this->method = new char[strlen(&method) + 1];
+    strcpy(this->method, &method);
 }
 
 /**
  * Get the request URI.
  * @return const char *, a character pointer to the URI string, or NULL. Callers must NOT modify or delete this constant value.
  */
-const char * HttpRequest::getUri()
+const char* HttpRequest::getUri()
 {
-	return uri;
+    return uri;
 }
 
 /**
@@ -112,20 +119,20 @@ const char * HttpRequest::getUri()
  */
 void HttpRequest::setUri(const char& uri)
 {
-	if ( this->uri )
-		delete[] this->uri;
+    if (this->uri)
+        delete[] this->uri;
 
-	this->uri = new char[strlen(&uri)+1];
-	strcpy(this->uri, &uri);
+    this->uri = new char[strlen(&uri) + 1];
+    strcpy(this->uri, &uri);
 }
 
 /**
  * Get the request query.
  * @return const char *, a character pointer to the query string, or NULL. Callers must NOT modify or delete this constant value.
  */
-const char * HttpRequest::getQuery()
+const char* HttpRequest::getQuery()
 {
-	return query;
+    return query;
 }
 
 /**
@@ -136,37 +143,37 @@ const char * HttpRequest::getQuery()
  */
 void HttpRequest::addQueryString(const char& newQuery)
 {
-	int			  len = query ? strlen(query)+1 : 0;
-	const char	* tquery = &newQuery;
+    int len = query ? strlen(query) + 1 : 0;
+    const char* tquery = &newQuery;
 
-	if ( *tquery == '?' )
-		tquery++;
+    if (*tquery == '?')
+        tquery++;
 
-	len += strlen(tquery) + 1;
+    len += strlen(tquery) + 1;
 
-	char * oldQuery = query;
+    char* oldQuery = query;
 
-	query = new char[len];
+    query = new char[len];
 
-	if ( oldQuery )
-	{
-		strcpy(query, oldQuery);
-		delete[] oldQuery;
-	}
-	else
-		query[0] = 0;
+    if (oldQuery)
+    {
+        strcpy(query, oldQuery);
+        delete[] oldQuery;
+    }
+    else
+        query[0] = 0;
 
-	strcat(query, tquery);
-	parseQueryString(query,&parameters);
+    strcat(query, tquery);
+    parseQueryString(query, &parameters);
 }
 
 /**
  * Get the protocol.
  * @return const char *, a character pointer to the protocol string, or NULL. Callers must NOT modify or delete this constant value.
  */
-const char * HttpRequest::getProtocol()
+const char* HttpRequest::getProtocol()
 {
-	return protocol;
+    return protocol;
 }
 
 /**
@@ -175,11 +182,11 @@ const char * HttpRequest::getProtocol()
  */
 void HttpRequest::setProtocol(const char& protocol)
 {
-	if ( this->protocol )
-		delete[] this->protocol;
+    if (this->protocol)
+        delete[] this->protocol;
 
-	this->protocol = new char[strlen(&protocol)+1];
-	strcpy(this->protocol, &protocol);
+    this->protocol = new char[strlen(&protocol) + 1];
+    strcpy(this->protocol, &protocol);
 }
 
 /**
@@ -188,36 +195,36 @@ void HttpRequest::setProtocol(const char& protocol)
  * @return const char *, a character pointer to the string containing the name of the
  *	server to which the request was sent, or NULL. Callers must NOT modify or delete this constant value.
  */
-const char * HttpRequest::getServerName()
+const char* HttpRequest::getServerName()
 {
-	if ( !serverName )
-	{
-		const char	* server = getHeader(*Host_Header);
+    if (!serverName)
+    {
+        const char* server = getHeader(*Host_Header);
 
-		if ( server )
-		{
-			const char	* cp = strrchr(server,':');
-			int			  len;
+        if (server)
+        {
+            const char* cp = strrchr(server, ':');
+            int len;
 
-			if ( cp != NULL )
-			{
-				serverPort = strtol(cp+1,NULL,10);
-				len = (cp-server);
-				//cout << "len= " << len << " diff= " << (cp-server) << endl;
-			}
-			else
-			{
-				len = strlen(server);
-				serverPort = DefaultServerPort;
-			}
+            if (cp != NULL)
+            {
+                serverPort = strtol(cp + 1, NULL, 10);
+                len = (cp - server);
+                // cout << "len= " << len << " diff= " << (cp-server) << endl;
+            }
+            else
+            {
+                len = strlen(server);
+                serverPort = DefaultServerPort;
+            }
 
-			serverName = new char[len+1];
-			strncpy(serverName, server, len);
-			serverName[len] = 0;
-		}
-	}
+            serverName = new char[len + 1];
+            strncpy(serverName, server, len);
+            serverName[len] = 0;
+        }
+    }
 
-	return serverName;
+    return serverName;
 }
 
 /**
@@ -227,10 +234,10 @@ const char * HttpRequest::getServerName()
  */
 int HttpRequest::getServerPort()
 {
-	if ( serverPort == -1 )
-		getServerName();
+    if (serverPort == -1)
+        getServerName();
 
-	return serverPort;
+    return serverPort;
 }
 
 /**
@@ -239,9 +246,9 @@ int HttpRequest::getServerPort()
  * @return const char *, a character pointer to the string containing the IP address of the
  * client that sent the request, or NULL. Callers must NOT modify or delete this constant value.
  */
-const char * HttpRequest::getRemoteAddr()
+const char* HttpRequest::getRemoteAddr()
 {
-	return remoteAddr;
+    return remoteAddr;
 }
 
 /**
@@ -251,9 +258,9 @@ const char * HttpRequest::getRemoteAddr()
  *	that the client sent, or NULL if no cookies were sent. Callers must NOT modify or delete this
  *	constant value, or the contents of this constant list.
  */
-HttpCookie * HttpRequest::getCookieList()
+HttpCookie* HttpRequest::getCookieList()
 {
-	return cookieList;
+    return cookieList;
 }
 
 /**
@@ -264,7 +271,7 @@ HttpCookie * HttpRequest::getCookieList()
  */
 HttpRequestProcessor& HttpRequest::getRequestProcessor()
 {
-	return requestProcessor;
+    return requestProcessor;
 }
 
 /**
@@ -278,79 +285,79 @@ HttpRequestProcessor& HttpRequest::getRequestProcessor()
  * @ret const Session * the Session associated with this request or NULL if create is false
  *	and the request has no valid session
  */
-Session * HttpRequest::getSession(bool create)
+Session* HttpRequest::getSession(bool create)
 {
-	D(cout << "HttpRequest::getSession() ENTERED with session= " << session << endl)
+    D(cout << "HttpRequest::getSession() ENTERED with session= " << session << endl)
 
-	if ( !session )
-	{
-		HttpCookie	* cookie_List = getCookieList();
-		const char	* sessionID = NULL;
-		bool		  idFromCookie = FALSE;
+    if (!session)
+    {
+        HttpCookie* cookie_List = getCookieList();
+        const char* sessionID = NULL;
+        bool idFromCookie = FALSE;
 
-		// First look for the sessionID in the cookies.
-		while ( cookie_List )
-		{
-			if ( !strcmp(cookie_List->getName(),Session_Cookie_Name) )
-			{
-				sessionID = cookieList->getValue();
-				idFromCookie = TRUE;
-				break;
-			}
-			cookie_List = cookie_List->next;
-		}
+        // First look for the sessionID in the cookies.
+        while (cookie_List)
+        {
+            if (!strcmp(cookie_List->getName(), Session_Cookie_Name))
+            {
+                sessionID = cookieList->getValue();
+                idFromCookie = TRUE;
+                break;
+            }
+            cookie_List = cookie_List->next;
+        }
 
-		D(cout << "HttpRequest::getSession() 1 sessionID= '" << (sessionID ? sessionID : "Null") << "'" << endl)
+        D(cout << "HttpRequest::getSession() 1 sessionID= '" << (sessionID ? sessionID : "Null") << "'" << endl)
 
-		// If the sessionID couldn't be foundin the cookies, look for in the URL params.
-		if ( !sessionID )
-		{
-			sessionID = getParameter(*Session_Parameter_Name);
-			D(cout << "HttpRequest::getSession() 2 sessionID= '" << (sessionID ? sessionID : "Null") << "'" << endl)
-		}
+        // If the sessionID couldn't be foundin the cookies, look for in the URL params.
+        if (!sessionID)
+        {
+            sessionID = getParameter(*Session_Parameter_Name);
+            D(cout << "HttpRequest::getSession() 2 sessionID= '" << (sessionID ? sessionID : "Null") << "'" << endl)
+        }
 
-		if ( sessionID )
-		{
-			session = sessionManager.findSession(*sessionID /*, TRUE*/);
-			// If we were able to find a session, then it's not a new session.
-			/* ZZZ sessionIsNew would have already been set in addSession() the last time around,
-				otherwise the Response object would have deleted it.
-			if ( session )
-				session.sessionIsNew = FALSE;
-			*/
-		}
+        if (sessionID)
+        {
+            session = sessionManager.findSession(*sessionID /*, TRUE*/);
+            // If we were able to find a session, then it's not a new session.
+            /* ZZZ sessionIsNew would have already been set in addSession() the last time around,
+                otherwise the Response object would have deleted it.
+            if ( session )
+                session.sessionIsNew = FALSE;
+            */
+        }
 
-		D(cout << "HttpRequest::getSession() 3 with session= " << session << endl)
-		if ( !session && create )
-		{
-			session = sessionManager.createSession();
+        D(cout << "HttpRequest::getSession() 3 with session= " << session << endl)
+        if (!session && create)
+        {
+            session = sessionManager.createSession();
 
-/*			// ZZZ Changed to below... 
-			if ( session && sessionID )
-			{
-				session->setSessionID(*sessionID);
-				sessionManager.addSession(*session);
-			}
-*/
-			if ( session )
-			{
-				if ( sessionID )
-					session->setSessionID(*sessionID);
-				sessionManager.addSession(*session);
-			}
-		}
+            /*			// ZZZ Changed to below...
+                        if ( session && sessionID )
+                        {
+                            session->setSessionID(*sessionID);
+                            sessionManager.addSession(*session);
+                        }
+            */
+            if (session)
+            {
+                if (sessionID)
+                    session->setSessionID(*sessionID);
+                sessionManager.addSession(*session);
+            }
+        }
 
-		if ( session )
-		{
-			session->addReference();
-			session->setIDFromCookie(idFromCookie);
-			response.setSession(session);
-		}
-	}
+        if (session)
+        {
+            session->addReference();
+            session->setIDFromCookie(idFromCookie);
+            response.setSession(session);
+        }
+    }
 
-	D(cout << "HttpRequest::getSession() END with session= " << session << "ID= '" << (session ? &session->getSessionID() : "undefined") << "'" << endl)
+    D(cout << "HttpRequest::getSession() END with session= " << session << "ID= '" << (session ? &session->getSessionID() : "undefined") << "'" << endl)
 
-	return session;
+    return session;
 }
 
 /**
@@ -365,20 +372,20 @@ Session * HttpRequest::getSession(bool create)
  */
 bool HttpRequest::forward(const char& path)
 {
-	char * p = (char *)&path;
-	char * question = (char *)strchr(p,'?');
+    char* p = (char*)&path;
+    char* question = (char*)strchr(p, '?');
     D(cout << "HttpRequest::forward() started" << endl;)
-	if ( question )
-	{
-		addQueryString(*(question+1));
-		*question = 0;
-	}
+    if (question)
+    {
+        addQueryString(*(question + 1));
+        *question = 0;
+    }
 
-	setUri(path);
-	if ( question )
-		*question = '?';
+    setUri(path);
+    if (question)
+        *question = '?';
 
-	return requestProcessor.dispatch(*this,response);
+    return requestProcessor.dispatch(*this, response);
 }
 
 /**
@@ -394,12 +401,12 @@ bool HttpRequest::forward(const char& path)
  */
 bool HttpRequest::include(const char& path)
 {
-	// Force the writting of the headers if they've not been written yet. This will set
-	// the response to committed so that any further attempt to writeHeaders will be ignored.
+    // Force the writting of the headers if they've not been written yet. This will set
+    // the response to committed so that any further attempt to writeHeaders will be ignored.
     D(cout << "HttpRequest::include() started" << endl;)
 
-	response.writeHeaders();
-	return forward(path);
+    response.writeHeaders();
+    return forward(path);
 }
 
 /**
@@ -408,204 +415,198 @@ bool HttpRequest::include(const char& path)
  * @ret AppSocket *, the AppSocket used to build this request, or NULL. Callers
  *		must NOT try to delete this.
  */
-AppSocket * HttpRequest::getAppSocket()
+AppSocket* HttpRequest::getAppSocket()
 {
-	return appSock;
+    return appSock;
 }
 
 bool HttpRequest::scanRequest(AppSocket& appSocket)
 {
-	char	method[50];
-    bool	ret;
+    char method[50];
+    bool ret;
 
     // get the method.
 
     // skip spaces
     do
     {
-		//printf("%d of %s\n",__LINE__,__FILE__);
+        // printf("%d of %s\n",__LINE__,__FILE__);
         ret = appSocket.readByte(method);
-		//printf("%d of %s\n",__LINE__,__FILE__);
-    } while( ret && isspace(*method) );
+        // printf("%d of %s\n",__LINE__,__FILE__);
+    } while (ret && isspace(*method));
 
-    if ( !ret )
-    	return false;
+    if (!ret)
+        return false;
 
-    int	i, ch = *method;
+    int i, ch = *method;
 
-	for ( i = 0; ret && (i < sizeof (method)); ret = appSocket.readByte(&method[i]) )
+    for (i = 0; ret && (i < sizeof(method)); ret = appSocket.readByte(&method[i]))
     {
-	    ch = method[i];
+        ch = method[i];
 
-		if ( isspace(ch) )
-        	break;
+        if (isspace(ch))
+            break;
         else
-        	i++;
-  	}
+            i++;
+    }
 
-	if ( !ret )
-    	return false;
+    if (!ret)
+        return false;
 
     method[i] = 0;
 
     // get the uri & query.
-	char	uri[SMALL_LENGTH];
+    char uri[SMALL_LENGTH];
 
     // skip spaces
     do
     {
-		ret = appSocket.readByte(uri);
-    } while( ret && isspace(*uri) );
+        ret = appSocket.readByte(uri);
+    } while (ret && isspace(*uri));
 
-    if ( !ret )
-    	return false;
+    if (!ret)
+        return false;
 
-    char * query = NULL;
+    char* query = NULL;
 
     ch = *uri;
-	for ( i = 0; ret && (i < SMALL_LENGTH); ret = appSocket.readByte(&uri[i]) )
+    for (i = 0; ret && (i < SMALL_LENGTH); ret = appSocket.readByte(&uri[i]))
     {
-	    ch = uri[i];
-    	if ( (ch == '?') && !query )
+        ch = uri[i];
+        if ((ch == '?') && !query)
         {
-      		uri[i++] = 0;
-      		query = &uri[i];
-    	}
-        else if ( isspace(ch) )
+            uri[i++] = 0;
+            query = &uri[i];
+        }
+        else if (isspace(ch))
         {
-        	break;
+            break;
         }
         else
-        	i++;
-  	}
+            i++;
+    }
 
-	if ( !ret )
-		return false;
+    if (!ret)
+        return false;
 
     uri[i] = 0;
 
     // get the protocol.
-	char	protocol[50];
+    char protocol[50];
 
     // skip
     do
     {
-		ret = appSocket.readByte(protocol);
-    } while( ret && *protocol == ' ' || *protocol == '\t' );
+        ret = appSocket.readByte(protocol);
+    } while (ret && *protocol == ' ' || *protocol == '\t');
 
-    if ( !ret )
-    	return false;
+    if (!ret)
+        return false;
 
-	ch = *protocol;
+    ch = *protocol;
 
-	for ( i = 0; ret && (i < sizeof (protocol)); ret = appSocket.readByte(&protocol[i]) )
+    for (i = 0; ret && (i < sizeof(protocol)); ret = appSocket.readByte(&protocol[i]))
     {
-	    ch = protocol[i];
+        ch = protocol[i];
 
-		if ( isspace(ch) )
-        	break;
+        if (isspace(ch))
+            break;
         else
-        	i++;
-  	}
+            i++;
+    }
 
-	if ( !ret )
-    	return false;
+    if (!ret)
+        return false;
 
     protocol[i] = 0;
 
-    char	tmp[1];
+    char tmp[1];
     // skip to end of line
     do
     {
-		ret = appSocket.readByte(tmp);
-    } while( ret && *tmp != '\n' );
+        ret = appSocket.readByte(tmp);
+    } while (ret && *tmp != '\n');
 
+    setMethod(*method);
 
-	setMethod(*method);
+    setUri(*uri);
 
-	setUri(*uri);
+    setProtocol(*protocol);
 
-	setProtocol(*protocol);
+    if (query)
+        addQueryString(*query);
 
-	if ( query )
-		addQueryString(*query);
-
-
-
-	parseQueryString(query,&parameters);
-
+    parseQueryString(query, &parameters);
 
     return ret;
 }
 
 bool HttpRequest::scanHeaders(AppSocket& appSocket)
 {
-	char	buf[SMALL_LENGTH];
-    int		i, ch;
-    bool	ret;
+    char buf[SMALL_LENGTH];
+    int i, ch;
+    bool ret;
 
-	while ( (ret = appSocket.readByte(buf)) == TRUE )
+    while ((ret = appSocket.readByte(buf)) == TRUE)
     {
-	    char		* key = buf;
-    	char		* value = NULL;
+        char* key = buf;
+        char* value = NULL;
 
         ch = *buf;
 
-	    if (ch == '\n')
+        if (ch == '\n')
         {
-        	return true;
-	    }
-    	else if (ch == '\r')
+            return true;
+        }
+        else if (ch == '\r')
         {
-        	/* should be '\n' */
-    		appSocket.readByte(buf);
-        	return true;
-    	}
+            /* should be '\n' */
+            appSocket.readByte(buf);
+            return true;
+        }
 
-		for ( i = 0; ret && (i < SMALL_LENGTH); ret = appSocket.readByte(&buf[i]) )
-    	{
-	    	ch = buf[i];
+        for (i = 0; ret && (i < SMALL_LENGTH); ret = appSocket.readByte(&buf[i]))
+        {
+            ch = buf[i];
 
-			if ( isspace(ch) || (ch == ':') )
-    	    	break;
-        	else
-        		i++;
-	  	}
+            if (isspace(ch) || (ch == ':'))
+                break;
+            else
+                i++;
+        }
 
-		if ( !ret || (ch != ':') || (i == SMALL_LENGTH) )
-        	return false;
+        if (!ret || (ch != ':') || (i == SMALL_LENGTH))
+            return false;
 
-		buf[i++] = 0;
+        buf[i++] = 0;
         value = &buf[i];
 
-	    // skip
-    	do
-	    {
-			ret = appSocket.readByte(&buf[i]);
-	    } while( ret && buf[i] == ' ' || buf[i] == '\t' );
+        // skip
+        do
+        {
+            ret = appSocket.readByte(&buf[i]);
+        } while (ret && buf[i] == ' ' || buf[i] == '\t');
 
-    	if ( !ret )
-    		return false;
+        if (!ret)
+            return false;
 
-		for ( i++ ; (i < SMALL_LENGTH) && ((ret = appSocket.readByte(&buf[i])) == TRUE); )
-    	{
-	    	ch = buf[i];
+        for (i++; (i < SMALL_LENGTH) && ((ret = appSocket.readByte(&buf[i])) == TRUE);)
+        {
+            ch = buf[i];
 
-			if ( ch == '\n' )
-    	    	break;
-			else if ( ch == '\r' )
-            	buf[i] = 0;
-        	else
-        		i++;
-	  	}
-		buf[i] = 0;
+            if (ch == '\n')
+                break;
+            else if (ch == '\r')
+                buf[i] = 0;
+            else
+                i++;
+        }
+        buf[i] = 0;
 
-		addHeader(*key, *value);
+        addHeader(*key, *value);
+    }
 
-		
-	}
-
-	return ret;
+    return ret;
 }
 
 /**
@@ -613,203 +614,200 @@ bool HttpRequest::scanHeaders(AppSocket& appSocket)
  */
 void HttpRequest::processCookies()
 {
-	char ** values = getHeaderValues(*Cookie_Header);
+    char** values = getHeaderValues(*Cookie_Header);
 
-	if ( values )
+    if (values)
     {
-    	for ( int i = 0; values[i]; i++ )
+        for (int i = 0; values[i]; i++)
         {
-			StringTokenizer tok(*values[i], *";", FALSE);
-			while (tok.hasMoreTokens())
-			{
-				char * cookieStr = tok.nextToken();
+            StringTokenizer tok(*values[i], *";", FALSE);
+            while (tok.hasMoreTokens())
+            {
+                char* cookieStr = tok.nextToken();
 
-				if ( !cookieStr )
-					break;
+                if (!cookieStr)
+                    break;
 
-				char * value = strchr(cookieStr, '=');    // find the equals sign
+                char* value = strchr(cookieStr, '='); // find the equals sign
 
-				if ( value )
-				{
-					char * name = cookieStr;
-					*value++ = 0;
+                if (value)
+                {
+                    char* name = cookieStr;
+                    *value++ = 0;
 
-					// Trime leading and trailing spaces.
+                    // Trime leading and trailing spaces.
                     // These trims here are a *hack* -- this should
                     // be more properly fixed to be spec compliant
-					while ( *name == ' ' )
-						*name++ = 0;
+                    while (*name == ' ')
+                        *name++ = 0;
 
-					while ( *value == ' ' )
-						*value++ = 0;
+                    while (*value == ' ')
+                        *value++ = 0;
 
-					int len = strlen(name);
-					while ( len )
-					{
-						char * t = &name[len-1];
-						if (*t == ' ')
-							*t = 0;
-						else
-							break;
+                    int len = strlen(name);
+                    while (len)
+                    {
+                        char* t = &name[len - 1];
+                        if (*t == ' ')
+                            *t = 0;
+                        else
+                            break;
 
-						len = strlen(name);
-					}
+                        len = strlen(name);
+                    }
 
-					len = strlen(value);
-					while ( len )
-					{
-						char * t = &value[len-1];
-						if (*t == ' ')
-							*t = 0;
-						else
-							break;
+                    len = strlen(value);
+                    while (len)
+                    {
+                        char* t = &value[len - 1];
+                        if (*t == ' ')
+                            *t = 0;
+                        else
+                            break;
 
-						len = strlen(value);
-					}
+                        len = strlen(value);
+                    }
 
-					// RFC 2109 and bug, remove begining an trailing quotes
-					//
-					// Remove beginning.
-					if ( (*value == '"') || (*value == '\'') )
-						*value++ = 0;
+                    // RFC 2109 and bug, remove begining an trailing quotes
+                    //
+                    // Remove beginning.
+                    if ((*value == '"') || (*value == '\''))
+                        *value++ = 0;
 
-					// Remove trailing.
-					len = strlen(value);
-					if ( len )
-					{
-						char * t = &value[len-1];
-						if ( (*t == '"') || (*t == '\'') )
-							*t = 0;
-					}
+                    // Remove trailing.
+                    len = strlen(value);
+                    if (len)
+                    {
+                        char* t = &value[len - 1];
+                        if ((*t == '"') || (*t == '\''))
+                            *t = 0;
+                    }
 
-					HttpCookie * cookie = new HttpCookie(*name, *value);
+                    HttpCookie* cookie = new HttpCookie(*name, *value);
 
-					cookie->next = cookieList;
-					cookieList = cookie;
-				}
-				else
-				{
-					// we have a bad cookie.... just let it go
-				}
+                    cookie->next = cookieList;
+                    cookieList = cookie;
+                }
+                else
+                {
+                    // we have a bad cookie.... just let it go
+                }
 
-				delete[] cookieStr;
-			}
-
+                delete[] cookieStr;
+            }
         }
-		delete values;
+        delete values;
     }
 }
 
-//bool HttpRequest::build(SOCKET socket, sockaddr_in * sinRemote)
+// bool HttpRequest::build(SOCKET socket, sockaddr_in * sinRemote)
 bool HttpRequest::build(AppSocket& appSocket)
 {
 
-	appSock = &appSocket;
+    appSock = &appSocket;
 
-	//printf("%d of %s\n",__LINE__,__FILE__);
-	bool ret = scanRequest(appSocket);
-	//printf("%d of %s\n",__LINE__,__FILE__);
+    // printf("%d of %s\n",__LINE__,__FILE__);
+    bool ret = scanRequest(appSocket);
+    // printf("%d of %s\n",__LINE__,__FILE__);
 
-    if ( ret )
-    	ret = scanHeaders(appSocket);
+    if (ret)
+        ret = scanHeaders(appSocket);
 
-	processCookies();
+    processCookies();
 
-	const char * contentType = getHeader(*ContentType_Header);
+    const char* contentType = getHeader(*ContentType_Header);
 
-    if ( contentType )
+    if (contentType)
     {
-		D(cout << endl << "contentType= '" << *contentType << "'" << endl;)
+        D(cout << endl
+               << "contentType= '" << *contentType << "'" << endl;)
 
-        if ( strstr(contentType,AppUrlEncodedStr) )
+        if (strstr(contentType, AppUrlEncodedStr))
         {
-	        ret = parsePostData(appSocket);
+            ret = parsePostData(appSocket);
         }
     }
 
-	// Build the remoteAddr.
-	//const char * addr = inet_ntoa(sinRemote->sin_addr);
-	const char * addr = inet_ntoa(appSocket.getSockaddr_in().sin_addr);
+    // Build the remoteAddr.
+    // const char * addr = inet_ntoa(sinRemote->sin_addr);
+    const char* addr = inet_ntoa(appSocket.getSockaddr_in().sin_addr);
 
-	if ( addr )
-	{
-		remoteAddr = new char[strlen(addr)+1];
-		strcpy(remoteAddr, addr);
-	}
-
-D(
-	const char * p = getParameter(*"two");
-
-    if ( p )
-		cout << endl << "p= '" << p << "'" << endl;
-
-	cout << "1 " << endl;
-	char ** values = getParameterValues(*"two");
-	cout << "2 " << endl;
-
-	if ( values )
+    if (addr)
     {
-		cout << "3 " << endl;
-    	for ( int i = 0; values[i]; i++ )
-        {
-			cout << "4 " << endl;
-        	cout << i << ": '" << values[i] << "'" << endl;
-        }
-		cout << "5 " << endl;
-		delete values;
+        remoteAddr = new char[strlen(addr) + 1];
+        strcpy(remoteAddr, addr);
     }
 
-	values = getParameterNames();
+    D(
+        const char* p = getParameter(*"two");
 
-	if ( values )
-    {
-    	for ( int i = 0; values[i]; i++ )
-        {
-        	cout << "name " << i << ": '" << values[i] << "'" << endl;
+        if (p)
+            cout
+        << endl
+        << "p= '" << p << "'" << endl;
+
+        cout << "1 " << endl;
+        char** values = getParameterValues(*"two");
+        cout << "2 " << endl;
+
+        if (values) {
+            cout << "3 " << endl;
+            for (int i = 0; values[i]; i++)
+            {
+                cout << "4 " << endl;
+                cout << i << ": '" << values[i] << "'" << endl;
+            }
+            cout << "5 " << endl;
+            delete values;
         }
-		delete values;
-    }
 
-	values = getHeaderNames();
+        values = getParameterNames();
 
-	if ( values )
-    {
-    	for ( int i = 0; values[i]; i++ )
-        {
-			const char * headerValue = getHeader(*values[i]);
-			if ( !headerValue )
-				headerValue = "Null";
-
-        	cout << "header " << i << ": '" << values[i] << "'= '" << headerValue << "'" << endl;
+        if (values) {
+            for (int i = 0; values[i]; i++)
+            {
+                cout << "name " << i << ": '" << values[i] << "'" << endl;
+            }
+            delete values;
         }
-		delete values;
-    }
 
-	const char	* server_Name = getServerName();
-	int			  server_Port = getServerPort();
+        values = getHeaderNames();
 
-	if ( !server_Name )
-		server_Name = "Null";
+        if (values) {
+            for (int i = 0; values[i]; i++)
+            {
+                const char* headerValue = getHeader(*values[i]);
+                if (!headerValue)
+                    headerValue = "Null";
 
-	cout << "server_Name= '" << server_Name << "' server_Port= " << server_Port << endl;
+                cout << "header " << i << ": '" << values[i] << "'= '" << headerValue << "'" << endl;
+            }
+            delete values;
+        }
 
-	const char	* remote_Addr = getRemoteAddr();
+        const char* server_Name = getServerName();
+        int server_Port = getServerPort();
 
-	if ( !remote_Addr )
-		remote_Addr = "Null";
+        if (!server_Name)
+            server_Name = "Null";
 
-	cout << "remote_Addr= '" << remote_Addr << "'" << endl;
+        cout << "server_Name= '" << server_Name << "' server_Port= " << server_Port << endl;
 
-	HttpCookie * cookie_List = getCookieList();
+        const char* remote_Addr = getRemoteAddr();
 
-	while ( cookie_List )
-	{
-		cout << "Cookie Name: '" << cookie_List->getName() << "' Value: '" << cookie_List->getValue() << "'" << endl;
-		cookie_List = cookie_List->next;
-	}
-)
+        if (!remote_Addr)
+            remote_Addr = "Null";
 
-	return ret;
+        cout << "remote_Addr= '" << remote_Addr << "'" << endl;
+
+        HttpCookie* cookie_List = getCookieList();
+
+        while (cookie_List) {
+            cout << "Cookie Name: '" << cookie_List->getName() << "' Value: '" << cookie_List->getValue() << "'" << endl;
+            cookie_List = cookie_List->next;
+        })
+
+    return ret;
 }
 
 /**
@@ -822,31 +820,31 @@ D(
  */
 bool HttpRequest::parsePostData(AppSocket& appSocket)
 {
-	//D(cout << endl << "parsePostData() ENTERED" << endl;)
+    // D(cout << endl << "parsePostData() ENTERED" << endl;)
 
-	const char	* contentLength = getHeader(*ContentLength_Header);
-    bool	   	  ret = false;
+    const char* contentLength = getHeader(*ContentLength_Header);
+    bool ret = false;
 
-	//D(cout << endl << "parsePostData() contentLength= " << contentLength << " " << __LINE__ << endl;)
+    // D(cout << endl << "parsePostData() contentLength= " << contentLength << " " << __LINE__ << endl;)
 
-	if ( contentLength )
-	{
-    	int	len = atoi(contentLength);
+    if (contentLength)
+    {
+        int len = atoi(contentLength);
 
-        if ( (len > 0) && (len <= SMALL_LENGTH) )
+        if ((len > 0) && (len <= SMALL_LENGTH))
         {
-			char	buf[SMALL_LENGTH];
-		    int		i = 0;
+            char buf[SMALL_LENGTH];
+            int i = 0;
 
-            while( (i < len) && ((ret = appSocket.readByte(&buf[i])) == TRUE) )
+            while ((i < len) && ((ret = appSocket.readByte(&buf[i])) == TRUE))
             {
-				i++;
+                i++;
             }
 
-	    	if ( ret )
+            if (ret)
             {
-	       		buf[i] = 0;
-				parseQueryString(buf,&parameters);
+                buf[i] = 0;
+                parseQueryString(buf, &parameters);
             }
         }
     }
@@ -866,35 +864,37 @@ bool HttpRequest::parsePostData(AppSocket& appSocket)
  * @param s - const char *, a pointer to the char string containing the query to be parsed;
  * @param keyValueList - a pointer to the KeyValue list pointer to store the key-value pairs in.
  */
-void HttpRequest::parseQueryString(const char * s, KeyValue **keyValueList)
+void HttpRequest::parseQueryString(const char* s, KeyValue** keyValueList)
 {
-	if ( s )
-	{
-		static const char& t = *"&";
+    if (s)
+    {
+        static const char& t = *"&";
 
-		for( StringTokenizer st(*s, t); st.hasMoreTokens(); )
-		{
-			char * key = st.nextToken();
+        for (StringTokenizer st(*s, t); st.hasMoreTokens();)
+        {
+            char* key = st.nextToken();
 
-			if ( !key )
-				break;
+            if (!key)
+                break;
 
-			D(cout << endl << "**********" << endl << "HttpRequest::parseQueryString() key= '" << key << "'" << endl)
+            D(cout << endl
+                   << "**********" << endl
+                   << "HttpRequest::parseQueryString() key= '" << key << "'" << endl)
 
-			char * val = strchr(key, '=');    // find the equals sign
+            char* val = strchr(key, '='); // find the equals sign
 
-			if ( val )
-			{
-				*val++ = 0;
-				URLCoder::decode(key);
-				URLCoder::decode(val);
-				addParameter(*key, *val);
-			}
+            if (val)
+            {
+                *val++ = 0;
+                URLCoder::decode(key);
+                URLCoder::decode(val);
+                addParameter(*key, *val);
+            }
 
-			delete[] key;
-		}
-	}
+            delete[] key;
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
-//#pragma package(smart_init)
+// #pragma package(smart_init)

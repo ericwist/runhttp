@@ -8,15 +8,14 @@
 
 // Uncomment one.
 #include <winsock.h>
-//#include <winsock2.h>
+// #include <winsock2.h>
 
 extern const char* WSAGetLastErrorMessage(const char* pcMessagePrefix,
-        int nErrorID = 0);
+                                          int nErrorID = 0);
 
 extern const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, char acErrorBuffer[],
-	int acErrorBufferSize, int nErrorID /* = 0 */);
+                                          int acErrorBufferSize, int nErrorID /* = 0 */);
 
 extern bool ShutdownConnection(SOCKET sd, bool isUDP = false);
 
 #endif // !defined (WS_UTIL_H)
-

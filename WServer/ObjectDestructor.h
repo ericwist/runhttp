@@ -15,12 +15,12 @@
 class ObjectDestructor
 {
 public:
-	/**
-	 * Destruct the contained object.
-	 *
-	 * @param value - void *, the value to be deleted.
-	 */
-	virtual void destructObject(void * value) = 0;
+    /**
+     * Destruct the contained object.
+     *
+     * @param value - void *, the value to be deleted.
+     */
+    virtual void destructObject(void* value) = 0;
 };
 
 #endif

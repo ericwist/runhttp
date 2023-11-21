@@ -4,18 +4,17 @@
 #ifndef RequestProcessorFactoryH
 #define RequestProcessorFactoryH
 
-#include "WServer.h"
 #include "RequestProcessor.h"
+#include "WServer.h"
 
 class WSERVER_API RequestProcessorFactory
 {
 public:
-	RequestProcessorFactory();
+    RequestProcessorFactory();
     virtual ~RequestProcessorFactory();
 
-    virtual RequestProcessor * createRequestProcessor() = 0;
+    virtual RequestProcessor* createRequestProcessor() = 0;
 };
-
 
 //---------------------------------------------------------------------------
 #endif

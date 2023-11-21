@@ -4,15 +4,15 @@
  * Author: Eric Wistrand 11/12/2023
  */
 
-#include <windows.h>
 #include "KeyValue.h"
+#include <windows.h>
 
-#ifdef	_WIN32_WCE	// [
+#ifdef _WIN32_WCE // [
 
-_CRTIMP int     __cdecl _stricmp(const char *, const char *);
-#define	stricmp _stricmp
+_CRTIMP int __cdecl _stricmp(const char*, const char*);
+#define stricmp _stricmp
 
-#endif				// ]
+#endif // ]
 
 /**
  * Sets a KeyValue with the given name and value. If the value
@@ -25,10 +25,10 @@ _CRTIMP int     __cdecl _stricmp(const char *, const char *);
  * @param keyValueList - KeyValue **, a pointer to the pointer of the KeyValue
  *		list to set the KeyValue on.
  */
-void KeyValueUtils::setKeyValue(const char& keyName, const char& value, KeyValue **keyValueList)
+void KeyValueUtils::setKeyValue(const char& keyName, const char& value, KeyValue** keyValueList)
 {
-	removeKeyValue(keyName,keyValueList);
-	addKeyValue(keyName,value,keyValueList);
+    removeKeyValue(keyName, keyValueList);
+    addKeyValue(keyName, value, keyValueList);
 }
 
 /**
@@ -40,27 +40,26 @@ void KeyValueUtils::setKeyValue(const char& keyName, const char& value, KeyValue
  * @param keyValueList - KeyValue **, a pointer to the pointer of the KeyValue
  *		list to add the KeyValue to.
  */
-void KeyValueUtils::addKeyValue(const char& keyName, const char& inValue, KeyValue **keyValueList)
+void KeyValueUtils::addKeyValue(const char& keyName, const char& inValue, KeyValue** keyValueList)
 {
-	const char * key = &keyName;
-	const char * value = &inValue;
+    const char* key = &keyName;
+    const char* value = &inValue;
 
     int keyLen = strlen(key) + 1;
     int valueLen = strlen(value) + 1;
-	int	size = sizeof (KeyValue) + keyLen + valueLen;
+    int size = sizeof(KeyValue) + keyLen + valueLen;
 
-	KeyValue * keyValue = (KeyValue *)new byte[size];
+    KeyValue* keyValue = (KeyValue*)new byte[size];
 
-    keyValue->key = (char *)(keyValue + 1);
-    keyValue->value = (char *)keyValue->key + keyLen;
+    keyValue->key = (char*)(keyValue + 1);
+    keyValue->value = (char*)keyValue->key + keyLen;
 
-	strcpy(keyValue->key, key);
-	strcpy((char *)keyValue->value, value);
+    strcpy(keyValue->key, key);
+    strcpy((char*)keyValue->value, value);
 
     keyValue->next = *keyValueList;
     *keyValueList = keyValue;
 }
-
 
 /**
  * Returns an array of character pointers containing all of the values the given
@@ -77,28 +76,28 @@ void KeyValueUtils::addKeyValue(const char& keyName, const char& inValue, KeyVal
  *                  has the responsibility of deleting it, but should not modify or
  *                  delete the values contained in the array.
  */
-char ** KeyValueUtils::getValues(const char& keyname,const KeyValue& keyValueList)
+char** KeyValueUtils::getValues(const char& keyname, const KeyValue& keyValueList)
 {
-	int			  cnt;
-	KeyValue	* t = (KeyValue *)&keyValueList;
+    int cnt;
+    KeyValue* t = (KeyValue*)&keyValueList;
 
-	// first count them.
-	for ( cnt = 0; t; t = t->next )
-	{
-		if ( !_stricmp(&keyname,t->key) )
-			cnt++;
-	}
+    // first count them.
+    for (cnt = 0; t; t = t->next)
+    {
+        if (!_stricmp(&keyname, t->key))
+            cnt++;
+    }
 
-	char **params = new char*[cnt+1];
+    char** params = new char*[cnt + 1];
 
     params[cnt] = NULL;
 
-	t = (KeyValue *)&keyValueList;
-	for ( cnt = 0; t; t = t->next )
-	{
-		if ( !_stricmp(&keyname,t->key) )
-			params[cnt++] = (char *)t->value;
-	}
+    t = (KeyValue*)&keyValueList;
+    for (cnt = 0; t; t = t->next)
+    {
+        if (!_stricmp(&keyname, t->key))
+            params[cnt++] = (char*)t->value;
+    }
 
     return params;
 }
@@ -117,17 +116,17 @@ char ** KeyValueUtils::getValues(const char& keyname,const KeyValue& keyValueLis
  *                 or NULL of the key value does not exist. Callers should NOT
  *                 modify or delete this value.
  */
-const char * KeyValueUtils::getValue(const char& keyname, const KeyValue& keyValueList)
+const char* KeyValueUtils::getValue(const char& keyname, const KeyValue& keyValueList)
 {
-	char * value = NULL;
+    char* value = NULL;
 
-	for ( const KeyValue * keyValue = &keyValueList; keyValue && !value; keyValue = keyValue->next )
-	{
-		if ( !_stricmp(&keyname,keyValue->key) )
-			value = (char *)keyValue->value;
-	}
+    for (const KeyValue* keyValue = &keyValueList; keyValue && !value; keyValue = keyValue->next)
+    {
+        if (!_stricmp(&keyname, keyValue->key))
+            value = (char*)keyValue->value;
+    }
 
-	return value;
+    return value;
 }
 
 /**
@@ -145,54 +144,50 @@ const char * KeyValueUtils::getValue(const char& keyname, const KeyValue& keyVal
  * key names. The caller has the responsibility of deleting this returnArray, but should
  * not modify or delete the values contained in the array.
  */
-char ** KeyValueUtils::getKeyNames(const KeyValue& keyValueList)
+char** KeyValueUtils::getKeyNames(const KeyValue& keyValueList)
 {
-	int			  size;
-	KeyValue	* t = (KeyValue *)&keyValueList;
+    int size;
+    KeyValue* t = (KeyValue*)&keyValueList;
 
+    // first count all unique (case insensitive) names.
+    for (size = 0; t; t = t->next)
+    {
+        bool found = false;
 
-	// first count all unique (case insensitive) names.
-	for ( size = 0; t; t = t->next )
-	{
-		bool	found = false;
+        KeyValue* t2 = (KeyValue*)&keyValueList;
 
-		KeyValue	* t2 = (KeyValue *)&keyValueList;
+        for (found = false; !found && t2 && (t2 != t); t2 = t2->next)
+        {
+            found = !_stricmp(t->key, t2->key);
+        }
 
-		for ( found = false; !found && t2 && (t2 != t); t2 = t2->next )
-		{
-			found = !_stricmp(t->key,t2->key);
-		}
+        if (!found)
+            size++;
+    }
 
-		if ( !found )
-			size++;
-	}
+    char** names = new char*[size + 1];
 
+    for (int i = size; i >= 0; i--)
+        names[i] = NULL;
 
+    names[size] = NULL;
 
-	char **names = new char*[size+1];
+    t = (KeyValue*)&keyValueList;
 
+    for (int i = 0; t && (i < size); t = t->next)
+    {
+        bool found = false;
 
-	for ( int i = size; i >= 0; i-- )
-		names[i] = NULL;
+        KeyValue* t2 = (KeyValue*)&keyValueList;
 
-	names[size] = NULL;
+        for (found = false; !found && t2 && (t2 != t); t2 = t2->next)
+        {
+            found = !_stricmp(t->key, t2->key);
+        }
 
-	t = (KeyValue *)&keyValueList;
-
-	for ( int i = 0; t && (i < size); t = t->next )
-	{
-		bool	found = false;
-
-		KeyValue	* t2 = (KeyValue *)&keyValueList;
-
-		for ( found = false; !found && t2 && (t2 != t); t2 = t2->next )
-		{
-			found = !_stricmp(t->key,t2->key);
-		}
-
-		if ( !found )
-			names[i++] = t->key;
-	}
+        if (!found)
+            names[i++] = t->key;
+    }
 
     return names;
 }
@@ -207,30 +202,30 @@ char ** KeyValueUtils::getKeyNames(const KeyValue& keyValueList)
  * @ret bool - TRUE/FALSE indicating whether the named key
  * had already been set.
  */
-bool KeyValueUtils::removeKeyValue(const char& keyName, KeyValue ** keyValueList)
+bool KeyValueUtils::removeKeyValue(const char& keyName, KeyValue** keyValueList)
 {
-	bool	found = false;
+    bool found = false;
 
-	if ( keyValueList )
-	{
-		KeyValue	* keyValue = *keyValueList, * prev = NULL;
+    if (keyValueList)
+    {
+        KeyValue *keyValue = *keyValueList, *prev = NULL;
 
-		for (; keyValue && !found; prev = keyValue, keyValue = keyValue->next )
-		{
-			if ( !_stricmp(&keyName,keyValue->key) )
-			{
-				if ( prev )
-					prev->next = keyValue->next;
-				else
-					*keyValueList = keyValue->next;
+        for (; keyValue && !found; prev = keyValue, keyValue = keyValue->next)
+        {
+            if (!_stricmp(&keyName, keyValue->key))
+            {
+                if (prev)
+                    prev->next = keyValue->next;
+                else
+                    *keyValueList = keyValue->next;
 
-				delete[] keyValue;
-				found = true;
-			}
-		}
-	}
+                delete[] keyValue;
+                found = true;
+            }
+        }
+    }
 
-	return found;
+    return found;
 }
 
 /**
@@ -239,12 +234,12 @@ bool KeyValueUtils::removeKeyValue(const char& keyName, KeyValue ** keyValueList
  * @param keyValueList - KeyValue **, a pointer to the pointer of the KeyValue
  *		list to delete the KeyValues from.
  */
-void KeyValueUtils::deleteKeyValues(KeyValue ** keyValueList)
+void KeyValueUtils::deleteKeyValues(KeyValue** keyValueList)
 {
-    while ( *keyValueList )
+    while (*keyValueList)
     {
-		KeyValue * keyValue = (*keyValueList)->next;
-		//D(cout << "deleting header with key= '" << headers->key << "' value= '" << headers->value << "'" << endl)
+        KeyValue* keyValue = (*keyValueList)->next;
+        // D(cout << "deleting header with key= '" << headers->key << "' value= '" << headers->value << "'" << endl)
 
         delete[] *keyValueList;
         *keyValueList = keyValue;

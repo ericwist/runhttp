@@ -1,18 +1,17 @@
 //---------------------------------------------------------------------------
 // Author: Eric Wistrand 11/12/2023
-//#pragma hdrstop
+// #pragma hdrstop
 
-#ifdef	_WIN32_WCE	// [
+#ifdef _WIN32_WCE // [
 #include <windows.h>
 
-_CRTIMP int __cdecl 	   _isctype(int, int);
-#define isxdigit(_c)     ( _isctype(_c,_HEX) )
+_CRTIMP int __cdecl _isctype(int, int);
+#define isxdigit(_c) (_isctype(_c, _HEX))
 
-_CRTIMP long   __cdecl strtol(const char *, char **, int);
-#endif				// ]
+_CRTIMP long __cdecl strtol(const char*, char**, int);
+#endif // ]
 
 #include "URLCoder.h"
-
 
 /**
  * Decodes a x-www-form-urlencoded to a char String.
@@ -22,11 +21,11 @@ _CRTIMP long   __cdecl strtol(const char *, char **, int);
  */
 char& URLCoder::decode(const char& s)
 {
-	int		  len = strlen(&s);
-	char	* retStr = new char[len+1];
+    int len = strlen(&s);
+    char* retStr = new char[len + 1];
 
-	strcpy(retStr,&s);
-	decode(retStr);
+    strcpy(retStr, &s);
+    decode(retStr);
 
     return *retStr;
 }
@@ -36,41 +35,41 @@ char& URLCoder::decode(const char& s)
  *
  * @param encoded - char *, a pointer the char string which will be decoded in place.
  */
-void URLCoder::decode(char * encoded)
+void URLCoder::decode(char* encoded)
 {
-	char * decoded; // generic pointer
+    char* decoded; // generic pointer
 
-	// Now, loop through looking for escapes
-	decoded = encoded;
-	while (*encoded)
-	{
-		if (*encoded=='%')
-		{
-			// A percent sign followed by two hex digits means
-			// that the digits represent an escaped character.
-			// We must decode it.
-			encoded++;
-			if (isxdigit(encoded[0]) && isxdigit(encoded[1]))
-			{
-				char	buf[3];
+    // Now, loop through looking for escapes
+    decoded = encoded;
+    while (*encoded)
+    {
+        if (*encoded == '%')
+        {
+            // A percent sign followed by two hex digits means
+            // that the digits represent an escaped character.
+            // We must decode it.
+            encoded++;
+            if (isxdigit(encoded[0]) && isxdigit(encoded[1]))
+            {
+                char buf[3];
 
-				buf[0] = encoded[0];
-				buf[1] = encoded[1];
-				buf[2] = 0;
+                buf[0] = encoded[0];
+                buf[1] = encoded[1];
+                buf[2] = 0;
 
-				*decoded++ = (char)strtol(buf,NULL,16); //(char)IntFromHex(encoded);
-				encoded += 2;
-			}
-		}
-		else
-		{
-			if (*encoded=='+')
-				*decoded = ' ';
+                *decoded++ = (char)strtol(buf, NULL, 16); //(char)IntFromHex(encoded);
+                encoded += 2;
+            }
+        }
+        else
+        {
+            if (*encoded == '+')
+                *decoded = ' ';
 
-			*decoded ++ = *encoded++;
-		}
-	}
-	*decoded = 0;
+            *decoded++ = *encoded++;
+        }
+    }
+    *decoded = 0;
 }
 
 /**
@@ -82,23 +81,23 @@ void URLCoder::decode(char * encoded)
  */
 bool URLCoder::shouldEncode(char c, bool extended)
 {
-	if (extended)
-	{
-		if (c < 32) return true;
-		if (c == '\"') return true;
-		if (c == '\'') return true;
-		if (c == ',') return true;
-		if (c > 'z') return true;
-	}
-	else
-	{
-		if (c == '.') return false;
-		if (c < '0') return true;
-		if (c > '9' && c < 'A') return true;
-		if (c > 'z') return true;
-	}
+    if (extended)
+    {
+        if (c < 32) return true;
+        if (c == '\"') return true;
+        if (c == '\'') return true;
+        if (c == ',') return true;
+        if (c > 'z') return true;
+    }
+    else
+    {
+        if (c == '.') return false;
+        if (c < '0') return true;
+        if (c > '9' && c < 'A') return true;
+        if (c > 'z') return true;
+    }
 
-	return false;
+    return false;
 }
 
 /**
@@ -106,52 +105,50 @@ bool URLCoder::shouldEncode(char c, bool extended)
  *
  * @param s - const char&, a reference to the char String to be translated.
  * @return char& - a reference to the newly translated char String which must be deleted by the caller.
-  */
+ */
 char& URLCoder::encode(const char& s)
 {
 
-	char	* str = (char *)&s;
-	int		  len = strlen(str);
-	int		  dstLen = len;
+    char* str = (char*)&s;
+    int len = strlen(str);
+    int dstLen = len;
 
-	// First count to see how big to allocate the encoded return string.
-	while ( *str )
-	{
-		if ( shouldEncode(*str++, false) )
-			dstLen += 2;
-	}
+    // First count to see how big to allocate the encoded return string.
+    while (*str)
+    {
+        if (shouldEncode(*str++, false))
+            dstLen += 2;
+    }
 
-	char * encoded = new char[dstLen+1];
+    char* encoded = new char[dstLen + 1];
 
-	str = (char *)&s;
-	if ( dstLen == len )
-	{
-		// No encoding is needed, just return a copy of the original string.
-		strcpy(encoded,str);
-	}
-	else
-	{
-		char * ptr = encoded;
+    str = (char*)&s;
+    if (dstLen == len)
+    {
+        // No encoding is needed, just return a copy of the original string.
+        strcpy(encoded, str);
+    }
+    else
+    {
+        char* ptr = encoded;
 
-		while ( *str )
-		{
-			char c = *str++;
+        while (*str)
+        {
+            char c = *str++;
 
-			if ( shouldEncode(c, false) )
-			{
-				*ptr++ = '%';
-				*ptr++ = ((c >> 4) > 9 ? ('A' + (c >> 4) - 10) : (c >> 4) + '0');
-				*ptr++ = ((c & 0xF) > 9 ? ('A' + (c & 0xF) - 10) : (c & 0xF) + '0');
-			}
-			else
-				*ptr++ = c;
-		}
-		*ptr = 0;
-	}
+            if (shouldEncode(c, false))
+            {
+                *ptr++ = '%';
+                *ptr++ = ((c >> 4) > 9 ? ('A' + (c >> 4) - 10) : (c >> 4) + '0');
+                *ptr++ = ((c & 0xF) > 9 ? ('A' + (c & 0xF) - 10) : (c & 0xF) + '0');
+            }
+            else
+                *ptr++ = c;
+        }
+        *ptr = 0;
+    }
 
-	return *encoded;
-
-
+    return *encoded;
 }
 
 /* // From http://www.bjnet.edu.cn/tech/book/seucgi/ch22.htm
@@ -244,4 +241,4 @@ void URLDecode(unsigned char *pEncoded) {
 */
 
 //---------------------------------------------------------------------------
-//#pragma package(smart_init)
+// #pragma package(smart_init)

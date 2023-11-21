@@ -1,10 +1,10 @@
 //---------------------------------------------------------------------------
 // Author: Eric Wistrand 11/12/2023
-//#pragma hdrstop
+// #pragma hdrstop
 
-#ifdef	_WIN32_WCE	// [
+#ifdef _WIN32_WCE // [
 #include <windows.h>
-#endif				// ]
+#endif // ]
 
 #include "StringTokenizer.h"
 
@@ -24,17 +24,20 @@
  * @param   returnDelims   bool, flag indicating whether to return the delimiters
  *                         as tokens.
  */
-StringTokenizer::StringTokenizer(const char& str, const char& delim, bool returnDelims) :
-	currentPosition(0), newPosition(-1), delimsChanged(false), str(str),
-    /*delimiters(delim),*/ retDelims(returnDelims)
+StringTokenizer::StringTokenizer(const char& str, const char& delim, bool returnDelims)
+: currentPosition(0)
+, newPosition(-1)
+, delimsChanged(false)
+, str(str)
+,
+/*delimiters(delim),*/ retDelims(returnDelims)
 {
-	delimiters = new char[strlen(&delim)+1];
-	strcpy(delimiters,&delim);
+    delimiters = new char[strlen(&delim) + 1];
+    strcpy(delimiters, &delim);
 
-	maxPosition = strlen(&str);
-	setMaxDelimChar();
+    maxPosition = strlen(&str);
+    setMaxDelimChar();
 }
-
 
 /**
  * Constructs a string tokenizer for the specified string. The
@@ -45,20 +48,22 @@ StringTokenizer::StringTokenizer(const char& str, const char& delim, bool return
  * @param   str     char&, a reference to the char string to be parsed.
  * @param   delim   char&, reference to the char delimiters.
  */
-StringTokenizer::StringTokenizer(const char& str, const char& delim) :
-	currentPosition(0), newPosition(-1), delimsChanged(false), str(str),
-    /*delimiters(delim),*/ retDelims(false)
+StringTokenizer::StringTokenizer(const char& str, const char& delim)
+: currentPosition(0)
+, newPosition(-1)
+, delimsChanged(false)
+, str(str)
+,
+/*delimiters(delim),*/ retDelims(false)
 {
-//	StringTokenizer(str,delim,false);
+    //	StringTokenizer(str,delim,false);
 
-	delimiters = new char[strlen(&delim)+1];
-	strcpy(delimiters,&delim);
+    delimiters = new char[strlen(&delim) + 1];
+    strcpy(delimiters, &delim);
 
-	maxPosition = strlen(&str);
-	setMaxDelimChar();
-
+    maxPosition = strlen(&str);
+    setMaxDelimChar();
 }
-
 
 /**
  * Constructs a string tokenizer for the specified string. The
@@ -70,27 +75,28 @@ StringTokenizer::StringTokenizer(const char& str, const char& delim) :
  *
  * @param   str   char& a reference to the char string to be parsed.
  */
-StringTokenizer::StringTokenizer(const char& str) : str(str)
+StringTokenizer::StringTokenizer(const char& str)
+: str(str)
 {
-	//StringTokenizer(str, *" \t\n\r\f", false);
+    // StringTokenizer(str, *" \t\n\r\f", false);
 
-	char * delim = " \t\n\r\f";
+    char* delim = " \t\n\r\f";
 
-	delimiters = new char[strlen(delim)+1];
-	strcpy(delimiters,delim);
+    delimiters = new char[strlen(delim) + 1];
+    strcpy(delimiters, delim);
 
-	maxPosition = strlen(&str);
-	setMaxDelimChar();
+    maxPosition = strlen(&str);
+    setMaxDelimChar();
 }
 
 StringTokenizer::~StringTokenizer()
 {
-/*
-	if ( str )
-    	delete str;
-*/
-	if ( delimiters )
-    	delete[] delimiters;
+    /*
+        if ( str )
+            delete str;
+    */
+    if (delimiters)
+        delete[] delimiters;
 }
 
 /**
@@ -104,13 +110,13 @@ StringTokenizer::~StringTokenizer()
  */
 bool StringTokenizer::hasMoreTokens()
 {
-	/*
-	 * Temporary store this position and use it in the following
-	 * nextToken() method only if the delimiters have'nt been changed in
-	 * that nextToken() invocation.
-	 */
-	newPosition = skipDelimiters(currentPosition);
-	return (newPosition < maxPosition);
+    /*
+     * Temporary store this position and use it in the following
+     * nextToken() method only if the delimiters have'nt been changed in
+     * that nextToken() invocation.
+     */
+    newPosition = skipDelimiters(currentPosition);
+    return (newPosition < maxPosition);
 }
 
 /**
@@ -119,41 +125,42 @@ bool StringTokenizer::hasMoreTokens()
  * @return     const char *, pointer to the next token from this string tokenizer.
  * or NULL if there are no more tokens. If NON NULL, the caller must delete the char string pointer.
  */
-char * StringTokenizer::nextToken()
+char* StringTokenizer::nextToken()
 {
-	/*
-	 * If next position already computed in hasMoreElements() and
-	 * delimiters have changed between the computation and this invocation,
-	 * then use the computed value.
-	 */
-	currentPosition = (newPosition >= 0 && !delimsChanged) ?
-		newPosition : skipDelimiters(currentPosition);
+    /*
+     * If next position already computed in hasMoreElements() and
+     * delimiters have changed between the computation and this invocation,
+     * then use the computed value.
+     */
+    currentPosition = (newPosition >= 0 && !delimsChanged) ? newPosition : skipDelimiters(currentPosition);
 
-	/* Reset these anyway */
-	delimsChanged = false;
-	newPosition = -1;
+    /* Reset these anyway */
+    delimsChanged = false;
+    newPosition = -1;
 
-	if (currentPosition >= maxPosition)
-		return NULL;;
+    if (currentPosition >= maxPosition)
+        return NULL;
+    ;
 
-	int start = currentPosition;
+    int start = currentPosition;
 
-	currentPosition = scanToken(currentPosition);
+    currentPosition = scanToken(currentPosition);
 
-	char	* tstr;
-	int		  size = currentPosition-start;
+    char* tstr;
+    int size = currentPosition - start;
 
-	if ( size > 0 )
-	{
-		tstr = new char[size+1];
-		strncpy(tstr,&(&str)[start],size);
-		tstr[size] = 0;
+    if (size > 0)
+    {
+        tstr = new char[size + 1];
+        strncpy(tstr, &(&str)[start], size);
+        tstr[size] = 0;
 
-		D(cout << endl << "()()()()()()()" << endl << "size= " << size << " currentPosition= " <<
-			currentPosition << " start= " << start << " tstr= '" << tstr << "'" << endl;)
-	}
-	else
-		tstr = NULL;
+        D(cout << endl
+               << "()()()()()()()" << endl
+               << "size= " << size << " currentPosition= " << currentPosition << " start= " << start << " tstr= '" << tstr << "'" << endl;)
+    }
+    else
+        tstr = NULL;
 
     return tstr;
 }
@@ -171,19 +178,19 @@ char * StringTokenizer::nextToken()
  * @return     const char *, pointer to the next token from this string tokenizer.
  *					or NULL if there are no more tokens.
  */
-char * StringTokenizer::nextToken(const char& delim)
+char* StringTokenizer::nextToken(const char& delim)
 {
-	if ( delimiters )
-		delete[] delimiters;
+    if (delimiters)
+        delete[] delimiters;
 
-	delimiters = new char[strlen(&delim)+1];
-	strcpy(delimiters,&delim);
+    delimiters = new char[strlen(&delim) + 1];
+    strcpy(delimiters, &delim);
 
-	/* delimiter string specified, so set the appropriate flag. */
-	delimsChanged = true;
+    /* delimiter string specified, so set the appropriate flag. */
+    delimsChanged = true;
 
-	setMaxDelimChar();
-	return nextToken();
+    setMaxDelimChar();
+    return nextToken();
 }
 
 /**
@@ -197,23 +204,22 @@ char * StringTokenizer::nextToken(const char& delim)
  */
 int StringTokenizer::countTokens()
 {
-	int count = 0;
-	int currpos = currentPosition;
+    int count = 0;
+    int currpos = currentPosition;
 
-	while (currpos < maxPosition)
-	{
-		currpos = skipDelimiters(currpos);
+    while (currpos < maxPosition)
+    {
+        currpos = skipDelimiters(currpos);
 
-		if (currpos >= maxPosition)
-			break;
+        if (currpos >= maxPosition)
+            break;
 
-		currpos = scanToken(currpos);
-		count++;
-	}
+        currpos = scanToken(currpos);
+        count++;
+    }
 
-	return count;
+    return count;
 }
-
 
 /**
  * Reset so that if tokens exist, hasMoreTokens() will return TRUE, and nextToken()
@@ -221,36 +227,35 @@ int StringTokenizer::countTokens()
  */
 void StringTokenizer::reset()
 {
-	currentPosition = 0;
-	newPosition = -1;
-	delimsChanged = false;
+    currentPosition = 0;
+    newPosition = -1;
+    delimsChanged = false;
 }
-
 
 /**
  * Set maxDelimChar to the highest char in the delimiter set.
  */
 void StringTokenizer::setMaxDelimChar()
 {
-	int	length;
+    int length;
 
-	if ( !delimiters || ((length = strlen(delimiters)) == 0) )
-	{
-		maxDelimChar = 0;
-		return;
-	}
+    if (!delimiters || ((length = strlen(delimiters)) == 0))
+    {
+        maxDelimChar = 0;
+        return;
+    }
 
-	char m = 0;
+    char m = 0;
 
-	for (int i = 0; i < length; i++)
-	{
+    for (int i = 0; i < length; i++)
+    {
         char c = delimiters[i];
 
-		if (m < c)
-			m = c;
-	}
+        if (m < c)
+            m = c;
+    }
 
-	maxDelimChar = m;
+    maxDelimChar = m;
 }
 
 /**
@@ -261,22 +266,22 @@ void StringTokenizer::setMaxDelimChar()
  */
 int StringTokenizer::skipDelimiters(int startPos)
 {
-	if (!delimiters || (strlen(delimiters) == 0) )
-		return -1;
+    if (!delimiters || (strlen(delimiters) == 0))
+        return -1;
 
-	int position = startPos;
+    int position = startPos;
 
-	while (!retDelims && position < maxPosition)
-	{
+    while (!retDelims && position < maxPosition)
+    {
         char c = (&str)[position];
 
-		if ( (c > maxDelimChar) || !strchr(delimiters,c) )
-			break;
+        if ((c > maxDelimChar) || !strchr(delimiters, c))
+            break;
 
-		position++;
-	}
+        position++;
+    }
 
-	return position;
+    return position;
 }
 
 /**
@@ -285,30 +290,28 @@ int StringTokenizer::skipDelimiters(int startPos)
  */
 int StringTokenizer::scanToken(int startPos)
 {
-	int position = startPos;
+    int position = startPos;
 
-	while (position < maxPosition)
-	{
+    while (position < maxPosition)
+    {
         char c = (&str)[position];
 
-		if ( (c <= maxDelimChar) && strchr(delimiters,c) )
-			break;
+        if ((c <= maxDelimChar) && strchr(delimiters, c))
+            break;
 
-		position++;
-	}
+        position++;
+    }
 
-	if (retDelims && (startPos == position))
-	{
+    if (retDelims && (startPos == position))
+    {
         char c = (&str)[position];
 
-		if ( (c <= maxDelimChar) && strchr(delimiters,c) )
-			position++;
-	}
+        if ((c <= maxDelimChar) && strchr(delimiters, c))
+            position++;
+    }
 
-	return position;
+    return position;
 }
 
-
-
 //---------------------------------------------------------------------------
-//#pragma package(smart_init)
+// #pragma package(smart_init)

@@ -8,17 +8,18 @@
 
 #include "HeaderManager.h"
 
-#ifdef	_WIN32_WCE	// [
+#ifdef _WIN32_WCE    // [
 #include <windows.h> // For NULL
-#endif				// ]
+#endif               // ]
 
-HeaderManager::HeaderManager() : headers(NULL)
+HeaderManager::HeaderManager()
+: headers(NULL)
 {
 }
 
 HeaderManager::~HeaderManager()
 {
-	deleteHeaders();
+    deleteHeaders();
 }
 
 /**
@@ -32,7 +33,7 @@ HeaderManager::~HeaderManager()
  */
 void HeaderManager::setHeader(const char& name, const char& value)
 {
-	setKeyValue(name,value,&headers);
+    setKeyValue(name, value, &headers);
 }
 
 /**
@@ -44,7 +45,7 @@ void HeaderManager::setHeader(const char& name, const char& value)
  */
 void HeaderManager::addHeader(const char& name, const char& value)
 {
-	addKeyValue(name,value,&headers);
+    addKeyValue(name, value, &headers);
 }
 
 /**
@@ -55,16 +56,16 @@ void HeaderManager::addHeader(const char& name, const char& value)
  *                 or NULL of the named header does not exist. Callers should NOT
  *                 modify or delete this value.
  */
-const char * HeaderManager::getHeader(const char& name)
+const char* HeaderManager::getHeader(const char& name)
 {
-	const char * value;
+    const char* value;
 
-	if ( headers )
-		value = getValue(name,*headers);
-	else
-		value = NULL;
+    if (headers)
+        value = getValue(name, *headers);
+    else
+        value = NULL;
 
-	return value;
+    return value;
 }
 
 /**
@@ -81,16 +82,16 @@ const char * HeaderManager::getHeader(const char& name)
  *                  has the responsibility of deleting it, but should not modify or
  *                  delete the values contained in the array.
  */
-char ** HeaderManager::getHeaderValues(const char& name)
+char** HeaderManager::getHeaderValues(const char& name)
 {
-	char ** values;
+    char** values;
 
-	if ( headers )
-		values = getValues(name,*headers);
-	else
-		values = NULL;
+    if (headers)
+        values = getValues(name, *headers);
+    else
+        values = NULL;
 
-	return values;
+    return values;
 }
 
 /**
@@ -104,16 +105,16 @@ char ** HeaderManager::getHeaderValues(const char& name)
  * @ret char ** a pointer to a NULL terminated array of character pointers containing the
  * names of the headers; or NULL if the there are no headers.
  */
-char ** HeaderManager::getHeaderNames()
+char** HeaderManager::getHeaderNames()
 {
-	char ** names;
+    char** names;
 
-	if ( headers )
-		names = getKeyNames(*headers);
-	else
-		names = NULL;
+    if (headers)
+        names = getKeyNames(*headers);
+    else
+        names = NULL;
 
-	return names;
+    return names;
 }
 
 /**
@@ -128,8 +129,7 @@ char ** HeaderManager::getHeaderNames()
  */
 bool HeaderManager::removeHeader(const char& name)
 {
-	return removeKeyValue(name,&headers);
-
+    return removeKeyValue(name, &headers);
 }
 
 /**
@@ -137,6 +137,5 @@ bool HeaderManager::removeHeader(const char& name)
  */
 void HeaderManager::deleteHeaders()
 {
-	deleteKeyValues(&headers); 
-
+    deleteKeyValues(&headers);
 }

@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 // Author: Eric Wistrand 11 / 12 / 2023
-//#pragma hdrstop
+// #pragma hdrstop
 
 #include "RequestProcessorFactory.h"
 
@@ -13,4 +13,4 @@ RequestProcessorFactory::~RequestProcessorFactory()
 }
 
 //---------------------------------------------------------------------------
-//#pragma package(smart_init)
+// #pragma package(smart_init)

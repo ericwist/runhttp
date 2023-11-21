@@ -1,120 +1,134 @@
 //---------------------------------------------------------------------------
 // Author: Eric Wistrand 11/12/2023
-//#pragma hdrstop
+// #pragma hdrstop
 
 #include "AppSocket.h"
 
-#ifndef	_WIN32_WCE	// [
+#ifndef _WIN32_WCE // [
 using namespace std;
-#endif				// ]
+#endif // ]
 
-AppSocket::AppSocket(SOCKET sd, int port, bool isUDP) : socket(sd), port(port), isUDP(isUDP), pushBackBuffer(NULL), pushBackBufferSize(0), pushBackBufferPosition(0)
+AppSocket::AppSocket(SOCKET sd, int port, bool isUDP)
+: socket(sd)
+, port(port)
+, isUDP(isUDP)
+, pushBackBuffer(NULL)
+, pushBackBufferSize(0)
+, pushBackBufferPosition(0)
 {
-	memset(&sinRemote,0,sizeof(sinRemote));
+    memset(&sinRemote, 0, sizeof(sinRemote));
 
-	connected = (socket != INVALID_SOCKET);
+    connected = (socket != INVALID_SOCKET);
 }
 
-AppSocket::AppSocket(SOCKET sd, int port, sockaddr_in& sinRemote, bool isUDP) : socket(sd), port(port), isUDP(isUDP), pushBackBuffer(NULL), pushBackBufferSize(0), pushBackBufferPosition(0)
+AppSocket::AppSocket(SOCKET sd, int port, sockaddr_in& sinRemote, bool isUDP)
+: socket(sd)
+, port(port)
+, isUDP(isUDP)
+, pushBackBuffer(NULL)
+, pushBackBufferSize(0)
+, pushBackBufferPosition(0)
 {
-	// structure copy
-	this->sinRemote = sinRemote;
+    // structure copy
+    this->sinRemote = sinRemote;
 }
 
 AppSocket::~AppSocket()
 {
-	close();
+    close();
 
-	if ( pushBackBuffer )
-		delete[] pushBackBuffer;
+    if (pushBackBuffer)
+        delete[] pushBackBuffer;
 }
 
 void AppSocket::close()
 {
-	if ( !isUDP && (socket != INVALID_SOCKET) )
-	{
-		if (ShutdownConnection(socket))
-		{
-			D(cout << "Connection is down." << endl;)
-		}
-		else
-		{
-#ifndef	_WIN32_WCE	// [
-			cerr << endl << WSAGetLastErrorMessage("Connection shutdown failed") << endl;
-#endif				// ]
-		}
-		socket = INVALID_SOCKET;
-	}
+    if (!isUDP && (socket != INVALID_SOCKET))
+    {
+        if (ShutdownConnection(socket))
+        {
+            D(cout << "Connection is down." << endl;)
+        }
+        else
+        {
+#ifndef _WIN32_WCE // [
+            cerr << endl
+                 << WSAGetLastErrorMessage("Connection shutdown failed") << endl;
+#endif // ]
+        }
+        socket = INVALID_SOCKET;
+    }
 
-	connected = (socket != INVALID_SOCKET);
+    connected = (socket != INVALID_SOCKET);
 }
 
 void AppSocket::setSocket(SOCKET sd, int port, bool isUDP)
 {
-	socket = sd;
-	this->port = port;
-	this->isUDP = isUDP;
+    socket = sd;
+    this->port = port;
+    this->isUDP = isUDP;
 
-	connected = (socket != INVALID_SOCKET);
+    connected = (socket != INVALID_SOCKET);
 }
 
 void AppSocket::setSocket(SOCKET sd, int port, sockaddr_in& sinRemote, bool isUDP)
 {
-	setSocket(sd, port, isUDP);
+    setSocket(sd, port, isUDP);
 
-	// structure copy
-	this->sinRemote = sinRemote;
+    // structure copy
+    this->sinRemote = sinRemote;
 }
 
 SOCKET AppSocket::getSocket()
 {
-	return socket;
+    return socket;
 }
 
 sockaddr_in& AppSocket::getSockaddr_in()
 {
-	return sinRemote;
+    return sinRemote;
 }
 
 int AppSocket::getPort()
 {
-	return port;
+    return port;
 }
 
-bool AppSocket::readByte(char * buf)
+bool AppSocket::readByte(char* buf)
 {
-	bool ret;
+    bool ret;
 
-	if ( pushBackBufferSize && (pushBackBufferPosition < pushBackBufferSize) )
-	{
-		buf[0] = pushBackBuffer[pushBackBufferPosition++];
+    if (pushBackBufferSize && (pushBackBufferPosition < pushBackBufferSize))
+    {
+        buf[0] = pushBackBuffer[pushBackBufferPosition++];
 
-		ret = true;
-	}
-	else
-	{
-		int		readBytes,i = 0;
+        ret = true;
+    }
+    else
+    {
+        int readBytes, i = 0;
 
-		//
-		// In the case of SOCK_STREAM, the server can do recv() and
-		// send() on the accepted socket and then close it.
+        //
+        // In the case of SOCK_STREAM, the server can do recv() and
+        // send() on the accepted socket and then close it.
 
-		// However, for SOCK_DGRAM (UDP), the server will do
-		// recvfrom() and sendto()  in a loop.
+        // However, for SOCK_DGRAM (UDP), the server will do
+        // recvfrom() and sendto()  in a loop.
 
-		if ( !isUDP )
-			while ( ((readBytes = recv(socket, buf, 1, 0)) == 0) && (i++ < 10) );
-		else
-		{
-			int sinSize = sizeof (sinRemote);
-			while ( ((readBytes = recvfrom(socket, buf, 1, 0, (struct sockaddr *)&sinRemote, &sinSize)) == 0) && (i++ < 10) );
-		}
+        if (!isUDP)
+            while (((readBytes = recv(socket, buf, 1, 0)) == 0) && (i++ < 10))
+                ;
+        else
+        {
+            int sinSize = sizeof(sinRemote);
+            while (((readBytes = recvfrom(socket, buf, 1, 0, (struct sockaddr*)&sinRemote, &sinSize)) == 0) && (i++ < 10))
+                ;
+        }
 
+        ret = (readBytes > 0);
+    }
 
-		ret = (readBytes > 0);
-	}
-
-	return ret;
+    return ret;
 }
 
 /**
@@ -124,76 +138,76 @@ bool AppSocket::readByte(char * buf)
  * @param len - int, the length of the buffer.
  * @ret int - the number of bytes read.
  */
-int AppSocket::readBytes(char * buf, int len)
+int AppSocket::readBytes(char* buf, int len)
 {
-	// ZZZ need to implement this in SSLAppSocket. Z.Z.Z 021122
-	int		readBytes = 0;
+    // ZZZ need to implement this in SSLAppSocket. Z.Z.Z 021122
+    int readBytes = 0;
 
-	if ( len > 0 )
-	{
-		if ( pushBackBufferSize )
-		{
-			int avail = pushBackBufferSize - pushBackBufferPosition;
+    if (len > 0)
+    {
+        if (pushBackBufferSize)
+        {
+            int avail = pushBackBufferSize - pushBackBufferPosition;
 
-			if ( avail > 0 )
-			{
-				if ( len < avail )
-					avail = len;
+            if (avail > 0)
+            {
+                if (len < avail)
+                    avail = len;
 
-				memcpy(buf, pushBackBuffer+pushBackBufferPosition, avail);
-				pushBackBufferPosition += avail;
-				len -= avail;
-				readBytes = avail;
-			}
-		}
+                memcpy(buf, pushBackBuffer + pushBackBufferPosition, avail);
+                pushBackBufferPosition += avail;
+                len -= avail;
+                readBytes = avail;
+            }
+        }
 
-		if ( len > 0 )
-		{
-			//
-			// In the case of SOCK_STREAM, the server can do recv() and
-			// send() on the accepted socket and then close it.
+        if (len > 0)
+        {
+            //
+            // In the case of SOCK_STREAM, the server can do recv() and
+            // send() on the accepted socket and then close it.
 
-			// However, for SOCK_DGRAM (UDP), the server will do
-			// recvfrom() and sendto()  in a loop.
+            // However, for SOCK_DGRAM (UDP), the server will do
+            // recvfrom() and sendto()  in a loop.
 
-			if ( !isUDP )
-			{
-				//readBytes = 0;
-				for ( int i = 0; (readBytes < len) && (i < 10); i++ )
-				{
-					int ret = recv(socket, (char *)(buf+readBytes), len-readBytes, 0);
+            if (!isUDP)
+            {
+                // readBytes = 0;
+                for (int i = 0; (readBytes < len) && (i < 10); i++)
+                {
+                    int ret = recv(socket, (char*)(buf + readBytes), len - readBytes, 0);
 
-					if ( ret == SOCKET_ERROR )
-						break;
+                    if (ret == SOCKET_ERROR)
+                        break;
 
-					readBytes += ret;
-				}
-			}
-			else
-			{
-				int sinSize = sizeof (sinRemote);
-		/*
-				for ( int i = 0; i < 10; i++ )
-				{
-					int ret = recvfrom(socket, (char *)(buf+readBytes), len-readBytes, 0, (struct sockaddr *)&sinRemote, &sinSize);
+                    readBytes += ret;
+                }
+            }
+            else
+            {
+                int sinSize = sizeof(sinRemote);
+                /*
+                        for ( int i = 0; i < 10; i++ )
+                        {
+                            int ret = recvfrom(socket, (char *)(buf+readBytes), len-readBytes, 0, (struct sockaddr *)&sinRemote, &sinSize);
 
-					if ( ret == SOCKET_ERROR )
-						break;
+                            if ( ret == SOCKET_ERROR )
+                                break;
 
-					readBytes += ret;
-				}
-		*/
-				int ret = recvfrom(socket, buf, len, 0, (struct sockaddr *)&sinRemote, &sinSize);
+                            readBytes += ret;
+                        }
+                */
+                int ret = recvfrom(socket, buf, len, 0, (struct sockaddr*)&sinRemote, &sinSize);
 
-				if ( ret != SOCKET_ERROR )
-					readBytes += ret;
-		/*
-				else
-					readBytes = 0;
-		*/
-			}
-		}
-	}
+                if (ret != SOCKET_ERROR)
+                    readBytes += ret;
+                /*
+                        else
+                            readBytes = 0;
+                */
+            }
+        }
+    }
 
     return readBytes;
 }
@@ -205,52 +219,52 @@ int AppSocket::readBytes(char * buf, int len)
  * @param len - int, the length of the bytes to write.
  * @ret bool - FALSE if errors are encountered.
  */
-bool AppSocket::writeBytes(const BYTE * bytes, int len)
+bool AppSocket::writeBytes(const BYTE* bytes, int len)
 {
-	bool	ret = TRUE;
+    bool ret = TRUE;
 
-	if ( (len > 0) && bytes )
+    if ((len > 0) && bytes)
     {
-		int	sent = 0;
+        int sent = 0;
 
-		while( ret && (sent < len) )
-		{
-			//
-			// In the case of SOCK_STREAM, the server can do recv() and
-			// send() on the accepted socket and then close it.
+        while (ret && (sent < len))
+        {
+            //
+            // In the case of SOCK_STREAM, the server can do recv() and
+            // send() on the accepted socket and then close it.
 
-			// However, for SOCK_DGRAM (UDP), the server will do
-			// recvfrom() and sendto()  in a loop.
+            // However, for SOCK_DGRAM (UDP), the server will do
+            // recvfrom() and sendto()  in a loop.
 
-			int l;
+            int l;
 
-			if ( !isUDP )
-				l = send(socket, (const char FAR *)(bytes + sent), len - sent, 0);
-			else
-				l = sendto(socket, (const char FAR *)(bytes + sent), len - sent, 0, (struct sockaddr *)&sinRemote, sizeof (sinRemote));
+            if (!isUDP)
+                l = send(socket, (const char FAR*)(bytes + sent), len - sent, 0);
+            else
+                l = sendto(socket, (const char FAR*)(bytes + sent), len - sent, 0, (struct sockaddr*)&sinRemote, sizeof(sinRemote));
 
-			if ( l )
-			{
-				if (l == SOCKET_ERROR)
-					ret = FALSE;
-				else
-					sent += l;
-			}
-			else
-			{
-				// Client closed connection before we could send
-				// all the data, so bomb out early.
-#ifndef	_WIN32_WCE	// [
-				cout << "Peer unexpectedly dropped connection!" << endl;
-#endif				// ]
-				ret = FALSE;
-			}
-		}
-	}
-	else
-		ret = FALSE;
+            if (l)
+            {
+                if (l == SOCKET_ERROR)
+                    ret = FALSE;
+                else
+                    sent += l;
+            }
+            else
+            {
+                // Client closed connection before we could send
+                // all the data, so bomb out early.
+#ifndef _WIN32_WCE // [
+                cout << "Peer unexpectedly dropped connection!" << endl;
+#endif // ]
+                ret = FALSE;
+            }
+        }
+    }
+    else
+        ret = FALSE;
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -259,21 +273,21 @@ bool AppSocket::writeBytes(const BYTE * bytes, int len)
  * @param str - char *, the string of characters to write.
  * @ret bool - FALSE if errors are encountered.
  */
-bool AppSocket::writeChars(const char * str)
+bool AppSocket::writeChars(const char* str)
 {
-	int		len;
+    int len;
 
-	if ( str != NULL )
-		len = strlen(str);
-	else
-		len = 0;
+    if (str != NULL)
+        len = strlen(str);
+    else
+        len = 0;
 
-	D(
-	if ( len )
-		cout << "AppSocket::writeChars() writing: '" << str << "'" << endl;
-	)
+    D(
+        if (len)
+                cout
+            << "AppSocket::writeChars() writing: '" << str << "'" << endl;)
 
-	return writeBytes((const BYTE *)str,len);
+    return writeBytes((const BYTE*)str, len);
 }
 
 /**
@@ -292,22 +306,21 @@ bool AppSocket::writeChars(const char * str)
  */
 bool AppSocket::setPushBackSize(unsigned int size)
 {
-	pushBackBufferSize = pushBackBufferPosition = size;
+    pushBackBufferSize = pushBackBufferPosition = size;
 
-	if ( pushBackBuffer )
-		delete[] pushBackBuffer;
+    if (pushBackBuffer)
+        delete[] pushBackBuffer;
 
-	if ( size )
-		pushBackBuffer = new BYTE[size];
-	else
-		pushBackBuffer = NULL;
+    if (size)
+        pushBackBuffer = new BYTE[size];
+    else
+        pushBackBuffer = NULL;
 
-	if ( !pushBackBuffer )
-		pushBackBufferSize = pushBackBufferPosition = 0;
+    if (!pushBackBuffer)
+        pushBackBufferSize = pushBackBufferPosition = 0;
 
-	return (size && pushBackBuffer);
+    return (size && pushBackBuffer);
 }
-
 
 /**
  * Push a byte back into the front of the pushBackBuffer.
@@ -319,17 +332,17 @@ bool AppSocket::setPushBackSize(unsigned int size)
  */
 bool AppSocket::pushBack(BYTE b)
 {
-	bool ret;
+    bool ret;
 
-	if ( pushBackBufferPosition )
-	{
-		pushBackBuffer[--pushBackBufferPosition] = b;
-		ret = true;
-	}
-	else
-		ret = false;
+    if (pushBackBufferPosition)
+    {
+        pushBackBuffer[--pushBackBufferPosition] = b;
+        ret = true;
+    }
+    else
+        ret = false;
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -343,20 +356,20 @@ bool AppSocket::pushBack(BYTE b)
  * @param len - unsigned int, the number of bytes to push back.
  * @ret bool, true if the byte could be pushed back, false otherwise.
  */
-bool AppSocket::pushBack(BYTE * b, unsigned int off, unsigned int len)
+bool AppSocket::pushBack(BYTE* b, unsigned int off, unsigned int len)
 {
-	bool ret;
+    bool ret;
 
-	if ( len <= pushBackBufferPosition )
-	{
-		pushBackBufferPosition -= len;
-		memcpy(pushBackBuffer+pushBackBufferPosition, b+off, len);
-		ret = true;
-	}
-	else
-		ret = false;
+    if (len <= pushBackBufferPosition)
+    {
+        pushBackBufferPosition -= len;
+        memcpy(pushBackBuffer + pushBackBufferPosition, b + off, len);
+        ret = true;
+    }
+    else
+        ret = false;
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -388,62 +401,57 @@ bool AppSocket::pushBack(BYTE * b, unsigned int off, unsigned int len)
  *		lineBuf will be allocated to. Use this to avoid recursively blowing the stack.
  * @ret char, the char read from the socket, used recursively to store in the stack.
  */
-char AppSocket::readLine(char ** lineBuf, int len, int maxRead)
+char AppSocket::readLine(char** lineBuf, int len, int maxRead)
 {
-	char ch[1] = {-1};
+    char ch[1] = {-1};
 
+    if (len < (maxRead - 1))
+    {
+        if (readByte(ch))
+        {
+            if ((ch[0] != '\n') && (ch[0] != '\r'))
+            {
+                readLine(lineBuf, len + 1, maxRead);
+                if (*lineBuf)
+                {
+                    (*lineBuf)[len] = ch[0];
+                }
+            }
+            else
+            {
+                if ((ch[0] == '\r') && pushBackBufferSize && pushBackBufferPosition)
+                {
+                    if (readByte(ch) && (ch[0] != '\n'))
+                    {
+                        pushBack(ch[0]);
+                    }
+                }
 
-	if ( len < (maxRead-1) )
-	{
-		if ( readByte(ch) )
-		{
-			if ( (ch[0] != '\n') && (ch[0] != '\r') )
-			{
-                readLine(lineBuf,len+1,maxRead);
-				if ( *lineBuf )
-				{
-					(*lineBuf)[len] = ch[0];
-				}
-				
-			}
-			else
-			{
-				if ( (ch[0] == '\r') && pushBackBufferSize && pushBackBufferPosition )
-				{
-					if ( readByte(ch) && (ch[0] != '\n') )
-					{
-						pushBack(ch[0]);
-					}
-				}
+                *lineBuf = new char[(len) + 1];
+                ch[0] = -1;
 
-				
-
-				*lineBuf = new char[(len)+1];
-				ch[0] = -1;
-
-				if ( *lineBuf )
-				{
-					// Set the first byte to NULL in case the the lineBuf only contained
-					// a '\n'. NULL terminate also.
-					(*lineBuf)[0] = (*lineBuf)[len] = 0;
-				}
-				else
-				{
-#ifndef	_WIN32_WCE
-					std::cerr << __LINE__ << " of " << __FILE__ << ", Error Allocating memory of size %d" << len << std::endl;
+                if (*lineBuf)
+                {
+                    // Set the first byte to NULL in case the the lineBuf only contained
+                    // a '\n'. NULL terminate also.
+                    (*lineBuf)[0] = (*lineBuf)[len] = 0;
+                }
+                else
+                {
+#ifndef _WIN32_WCE
+                    std::cerr << __LINE__ << " of " << __FILE__ << ", Error Allocating memory of size %d" << len << std::endl;
 #endif
-					len = maxRead;
-				}
-			}
-		}
-		else
-		{
-			ch[0] = -1;
-		}
-	}
+                    len = maxRead;
+                }
+            }
+        }
+        else
+        {
+            ch[0] = -1;
+        }
+    }
 
-	return ch[0];
-
+    return ch[0];
 }
 
 /**
@@ -453,7 +461,7 @@ char AppSocket::readLine(char ** lineBuf, int len, int maxRead)
  */
 unsigned int AppSocket::getPushBackSize()
 {
-	return pushBackBufferSize;
+    return pushBackBufferSize;
 }
 
 /**
@@ -466,7 +474,7 @@ unsigned int AppSocket::getPushBackSize()
  */
 unsigned int AppSocket::getpushBackBufferPosition()
 {
-	return pushBackBufferPosition;
+    return pushBackBufferPosition;
 }
 
 /**
@@ -476,21 +484,21 @@ unsigned int AppSocket::getpushBackBufferPosition()
  *                      print parameter list.
  * @ret bool - FALSE if errors are encountered.
  */
-bool AppSocket::printf(const char *fmt, ...)
+bool AppSocket::printf(const char* fmt, ...)
 {
-	char buf[8192];
+    char buf[8192];
     bool ret;
 
-	va_list list;
+    va_list list;
 
-	va_start(list, fmt);
+    va_start(list, fmt);
     _vsnprintf(buf, sizeof(buf), fmt, list);
-	 //_vsnprintf_s(buf, sizeof(buf), _TRUNCATE, fmt, list);
+    //_vsnprintf_s(buf, sizeof(buf), _TRUNCATE, fmt, list);
 
-	buf[sizeof(buf)-1] = 0;
+    buf[sizeof(buf) - 1] = 0;
     ret = writeChars(buf);
 
-	va_end(list);
+    va_end(list);
 
     return ret;
 }
@@ -502,11 +510,11 @@ bool AppSocket::printf(const char *fmt, ...)
  *	statments can be concatenated as in:
  *	appSocket << "Welcome " << name << ".";
  */
-AppSocket& AppSocket::operator << (const char * str)
+AppSocket& AppSocket::operator<<(const char* str)
 {
-	writeChars(str);
+    writeChars(str);
 
-	return *this;
+    return *this;
 }
 
 /**
@@ -516,11 +524,11 @@ AppSocket& AppSocket::operator << (const char * str)
  *	statments can be concatenated as in:
  *	appSocket << "Welcome " << name << '.' << endl;
  */
-AppSocket& AppSocket::operator << (const char c)
+AppSocket& AppSocket::operator<<(const char c)
 {
-	writeBytes((const BYTE *)&c, sizeof (c));
+    writeBytes((const BYTE*)&c, sizeof(c));
 
-	return *this;
+    return *this;
 }
 
 /**
@@ -533,13 +541,12 @@ AppSocket& AppSocket::operator << (const char c)
  *	statments can be concatenated as in:
  *	appSocket << "Your total is " << (price + tax) << ".";
  */
-AppSocket& AppSocket::operator << (const int val)
+AppSocket& AppSocket::operator<<(const int val)
 {
-	writeBytes((const BYTE *)&val, sizeof (val));
+    writeBytes((const BYTE*)&val, sizeof(val));
 
-	return *this;
+    return *this;
 }
-
 
 /**
  * Is the socket currently connected.
@@ -549,31 +556,31 @@ AppSocket& AppSocket::operator << (const int val)
  */
 bool AppSocket::isConnected()
 {
-	if ( connected )
-	{
-		connected = (socket != INVALID_SOCKET);
+    if (connected)
+    {
+        connected = (socket != INVALID_SOCKET);
 
-		if ( connected )
-		{
-			int err = WSAGetLastError();
+        if (connected)
+        {
+            int err = WSAGetLastError();
 
-			switch (err)
-			{
-				case WSAECONNREFUSED:
-				case WSAECONNRESET:
-				case WSAEHOSTDOWN:
-				case WSAEHOSTUNREACH:
-				case WSAENETDOWN:
-				case WSAENETRESET:
-				case WSAENETUNREACH:
-				case WSAENOTCONN:
-				case WSAESHUTDOWN:
-					connected = false;
-			}
-		}
-	}
+            switch (err)
+            {
+            case WSAECONNREFUSED:
+            case WSAECONNRESET:
+            case WSAEHOSTDOWN:
+            case WSAEHOSTUNREACH:
+            case WSAENETDOWN:
+            case WSAENETRESET:
+            case WSAENETUNREACH:
+            case WSAENOTCONN:
+            case WSAESHUTDOWN:
+                connected = false;
+            }
+        }
+    }
 
-	return connected;
+    return connected;
 }
 
 /**
@@ -585,10 +592,10 @@ bool AppSocket::isConnected()
  *
  * @ret const char *, a pointer to the passed in buffer.
  */
-const char * AppSocket::getLastSocketErrorMessage(const char* pcMessagePrefix, char acErrorBuffer[], int acErrorBufferSize, int nErrorID)
+const char* AppSocket::getLastSocketErrorMessage(const char* pcMessagePrefix, char acErrorBuffer[], int acErrorBufferSize, int nErrorID)
 {
-	return WSAGetLastErrorMessage(pcMessagePrefix, acErrorBuffer, acErrorBufferSize, nErrorID);
+    return WSAGetLastErrorMessage(pcMessagePrefix, acErrorBuffer, acErrorBufferSize, nErrorID);
 }
 
 //---------------------------------------------------------------------------
-//#pragma package(smart_init)
+// #pragma package(smart_init)

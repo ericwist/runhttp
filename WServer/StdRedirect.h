@@ -9,25 +9,23 @@
 #ifndef StdRedirectH
 #define StdRedirectH
 
-#ifndef	_WIN32_WCE	// [
+#ifndef _WIN32_WCE // [
 #include "WServer.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 class StdRedirect
 {
 public:
-
-	StdRedirect(const char * coutPath, const char * cerrPath);
-	~StdRedirect();
+    StdRedirect(const char* coutPath, const char* cerrPath);
+    ~StdRedirect();
 
 private:
-	std::ofstream	  coutFile;
-	std::ofstream	  cerrFile;
-	std::streambuf	* cout_buffer, * cerr_buffer;
-
+    std::ofstream coutFile;
+    std::ofstream cerrFile;
+    std::streambuf *cout_buffer, *cerr_buffer;
 };
-#endif				// ]
+#endif // ]
 
 #endif

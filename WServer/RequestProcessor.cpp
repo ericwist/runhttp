@@ -1,63 +1,59 @@
 //---------------------------------------------------------------------------
 // Author: Eric Wistrand 11/12/2023
-//#pragma hdrstop
+// #pragma hdrstop
 
 #include "RequestProcessor.h"
 
-#ifndef	_WIN32_WCE	// [
+#ifndef _WIN32_WCE // [
 using namespace std;
-#endif				// ]
+#endif // ]
 
 DWORD WINAPI EchoHandler(void* rp);
 
-RequestProcessor::RequestProcessor() : appSocket(NULL)
+RequestProcessor::RequestProcessor()
+: appSocket(NULL)
 {
-
 }
 
 RequestProcessor::~RequestProcessor()
 {
-	D(cout << "~RequestProcessor() " << endl;)
+    D(cout << "~RequestProcessor() " << endl;)
 
     D(cout << "Shutting connection down..." << flush;)
 
-	if ( appSocket )
-	{
-		/*
-		SOCKET socket = appSocket->getSocket();
+    if (appSocket)
+    {
+        /*
+        SOCKET socket = appSocket->getSocket();
 
-		if ( socket )
-		{
-			if (ShutdownConnection(socket))
-			{
-				D(cout << "Connection is down." << endl;)
-			}
-			else
-			{
-				cerr << endl << WSAGetLastErrorMessage("Connection shutdown failed") << endl;
-			}
-		}
-		*/
+        if ( socket )
+        {
+            if (ShutdownConnection(socket))
+            {
+                D(cout << "Connection is down." << endl;)
+            }
+            else
+            {
+                cerr << endl << WSAGetLastErrorMessage("Connection shutdown failed") << endl;
+            }
+        }
+        */
 
-		delete appSocket;
-	}
+        delete appSocket;
+    }
 }
 
-
-
-void RequestProcessor::setAppSocket(AppSocket * appSocket)
+void RequestProcessor::setAppSocket(AppSocket* appSocket)
 {
-	this->appSocket = appSocket;
+    this->appSocket = appSocket;
 }
 
-AppSocket * RequestProcessor::getAppSocket()
+AppSocket* RequestProcessor::getAppSocket()
 {
-	return appSocket;
+    return appSocket;
 }
 
-
-
-#if	0	// [
+#if 0 // [
 /**
  * Dispatch this request.
  *
@@ -70,7 +66,7 @@ bool RequestProcessor::dispatch(Request& request, Response& response)
 	return FALSE;
 }
 
-#endif	// ]
+#endif // ]
 
 //---------------------------------------------------------------------------
-//#pragma package(smart_init)
+// #pragma package(smart_init)
