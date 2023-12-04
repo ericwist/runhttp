@@ -6,6 +6,42 @@
 #include <iostream>
 const int defaultServerPort = 8080;
 using namespace std;
+
+int gethostipaddress(std::string& ip_address)
+{
+    WSADATA wsaData;
+
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
+        std::cout << "Failed to initialize Winsock" << std::endl;
+        return 1;
+    }
+
+    char hostname[256];
+    if (gethostname(hostname, sizeof(hostname)) != 0)
+    {
+        std::cout << "Failed to get hostname" << std::endl;
+        return 1;
+    }
+
+    struct hostent* host;
+    if ((host = gethostbyname(hostname)) == NULL)
+    {
+        std::cout << "Failed to get host by name" << std::endl;
+        return 1;
+    }
+
+    struct in_addr** addr_list = reinterpret_cast<struct in_addr**>(host->h_addr_list);
+    for (int i = 0; addr_list[i] != NULL; i++)
+    {
+        ip_address = inet_ntoa(*addr_list[i]);
+        std::cout << "IPv4 Address: " << ip_address << std::endl;
+    }
+
+    WSACleanup();
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
     // Do we have enough command line arguments?
@@ -21,7 +57,20 @@ int main(int argc, char* argv[])
     }
 
     // Get host and (optionally) port from the command line
-    const char* pcHost = argv[1];
+    std::string ip = "";
+    char pcHost[20] = {};
+    int retvalerr = gethostipaddress(ip);
+    
+    if (retvalerr == 1 || ip == "")
+    {
+        std::cout << "Failed to get host ip address using cmd arguement" << std::endl;
+        strcpy(pcHost, argv[1]);
+    }
+    else
+    {
+        strcpy(pcHost, ip.c_str());
+    }
+
     const char* indexFileName;
     int nPort;
 
